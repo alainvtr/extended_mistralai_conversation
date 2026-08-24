@@ -1,4 +1,7 @@
-"""Custom Conversation Agent for Mistral AI (HA 2026.7.2)."""
+"""
+From https://github.com/jekalmin/extended_openai_conversation
+Custom Conversation Agent for Mistral AI (HA 2026.7.2).
+"""
 from __future__ import annotations
 
 import json
