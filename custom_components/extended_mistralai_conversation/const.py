@@ -1,8 +1,4 @@
-"""
-    From https://github.com/SnarfNL/HA_MistralAI
-    From https://github.com/jekalmin/extended_openai_conversation
-Constants for the Extended Mistral AI Conversation integration.
-"""
+"""Constants for the Extended Mistral AI Conversation integration."""
 DOMAIN = "extended_mistralai_conversation"
 DEFAULT_NAME = "Extended Mistral AI Conversation"
 DEFAULT_MODEL = "mistral-medium-latest"
