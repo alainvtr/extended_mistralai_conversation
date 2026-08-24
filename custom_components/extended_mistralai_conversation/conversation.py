@@ -1,4 +1,7 @@
-"""Conversation platform for Mistral AI."""
+"""
+From https://github.com/jekalmin/extended_openai_conversation
+Conversation platform for Mistral AI.
+"""
 from __future__ import annotations
 
 import logging
