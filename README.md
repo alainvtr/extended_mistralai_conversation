@@ -28,7 +28,7 @@ You can create scripts that Mistral AI can execute when their description match 
 5. Restart Home Assistant
 
 ## Create a Mistral API key
-1. Sign up at mistral.ai
+1. Sign up at mistral.ai : a free account is sufficient
 2. Go to console.mistral.ai/api-keys
 2. Click Create new key and copy it immediately
 
@@ -36,9 +36,9 @@ You can create scripts that Mistral AI can execute when their description match 
 
 1. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
 2. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
-3. Settings → Devices & Services → + Add Integration
+3. Go to Settings then Devices & Services and clic on Add Integration
 4. Search for Extended Mistral AI Conversation
-5. Enter your API key → Submit
+5. Enter your API key and submit
 6. Review & adapt the other config params to your needs
 7. Validate
 8. Go to Settings > [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
