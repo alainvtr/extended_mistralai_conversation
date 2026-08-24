@@ -11,7 +11,17 @@ from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
-from homeassistant.helpers.selector import TextSelector, TextSelectorConfig, TextSelectorType
+from homeassistant.helpers.selector import (
+    NumberSelector,
+    NumberSelectorConfig,
+    NumberSelectorMode,
+    SelectSelector,
+    SelectSelectorConfig,
+    SelectSelectorMode,
+    TextSelector,
+    TextSelectorConfig,
+    TextSelectorType,
+)
 
 from .backup import read_json, write_json
 from .const import (
@@ -22,6 +32,20 @@ from .const import (
     DEFAULT_ALLOWED_DOMAINS,
     DEFAULT_ALLOWED_SERVICES,
     DEFAULT_BACKUP_PATH,
+    CONF_TTS_VOICE,
+    CONF_TTS_MODE,
+    CONF_TTS_HEADROOM,
+    CONF_TTS_MAX_INFLIGHT_SENTENCES,
+    CONF_TTS_MIN_SENTENCE_CHARS,
+    CONF_TTS_SILENCE_MS,
+    DEFAULT_TTS_VOICE,
+    DEFAULT_TTS_MODE,
+    DEFAULT_TTS_HEADROOM,
+    DEFAULT_TTS_MAX_INFLIGHT_SENTENCES,
+    DEFAULT_TTS_MIN_SENTENCE_CHARS,
+    DEFAULT_TTS_SILENCE_MS,
+    TTS_MODES,
+    TTS_VOICES,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,6 +103,16 @@ class MistralAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             "prompt_path": self._backup_options.get("prompt_path", DEFAULT_PROMPT_PATH),
             "allowed_domains": self._backup_options.get("allowed_domains", DEFAULT_ALLOWED_DOMAINS),
             "allowed_services": self._backup_options.get("allowed_services", DEFAULT_ALLOWED_SERVICES),
+            CONF_TTS_VOICE: self._backup_options.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE),
+            CONF_TTS_MODE: self._backup_options.get(CONF_TTS_MODE, DEFAULT_TTS_MODE),
+            CONF_TTS_HEADROOM: self._backup_options.get(CONF_TTS_HEADROOM, DEFAULT_TTS_HEADROOM),
+            CONF_TTS_MAX_INFLIGHT_SENTENCES: self._backup_options.get(
+                CONF_TTS_MAX_INFLIGHT_SENTENCES, DEFAULT_TTS_MAX_INFLIGHT_SENTENCES
+            ),
+            CONF_TTS_MIN_SENTENCE_CHARS: self._backup_options.get(
+                CONF_TTS_MIN_SENTENCE_CHARS, DEFAULT_TTS_MIN_SENTENCE_CHARS
+            ),
+            CONF_TTS_SILENCE_MS: self._backup_options.get(CONF_TTS_SILENCE_MS, DEFAULT_TTS_SILENCE_MS),
             "backup_path": backup_path,
         }
 
@@ -136,6 +170,12 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                     "prompt_path": user_input["prompt_path"],
                     "allowed_domains": allowed_domains,
                     "allowed_services": allowed_services,
+                    CONF_TTS_VOICE: user_input[CONF_TTS_VOICE],
+                    CONF_TTS_MODE: user_input[CONF_TTS_MODE],
+                    CONF_TTS_HEADROOM: user_input[CONF_TTS_HEADROOM],
+                    CONF_TTS_MAX_INFLIGHT_SENTENCES: int(user_input[CONF_TTS_MAX_INFLIGHT_SENTENCES]),
+                    CONF_TTS_MIN_SENTENCE_CHARS: int(user_input[CONF_TTS_MIN_SENTENCE_CHARS]),
+                    CONF_TTS_SILENCE_MS: int(user_input[CONF_TTS_SILENCE_MS]),
                     "backup_path": user_input["backup_path"],
                 }
                 # "Valider" cliqué : sauvegarde systématique (pas d'écriture si on ferme via la croix).
@@ -172,7 +212,44 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                         "backup_path",
                         default=current.get("backup_path", DEFAULT_BACKUP_PATH),
                     ): str,
+                    vol.Optional(
+                        CONF_TTS_VOICE,
+                        default=current.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE),
+                    ): SelectSelector(
+                        SelectSelectorConfig(options=TTS_VOICES, mode=SelectSelectorMode.DROPDOWN)
+                    ),
+                    vol.Optional(
+                        CONF_TTS_MODE,
+                        default=current.get(CONF_TTS_MODE, DEFAULT_TTS_MODE),
+                    ): SelectSelector(
+                        SelectSelectorConfig(options=TTS_MODES, mode=SelectSelectorMode.DROPDOWN)
+                    ),
+                    vol.Optional(
+                        CONF_TTS_HEADROOM,
+                        default=current.get(CONF_TTS_HEADROOM, DEFAULT_TTS_HEADROOM),
+                    ): NumberSelector(
+                        NumberSelectorConfig(min=0, max=10, step=0.1, mode=NumberSelectorMode.BOX, unit_of_measurement="dB")
+                    ),
+                    vol.Optional(
+                        CONF_TTS_MAX_INFLIGHT_SENTENCES,
+                        default=current.get(CONF_TTS_MAX_INFLIGHT_SENTENCES, DEFAULT_TTS_MAX_INFLIGHT_SENTENCES),
+                    ): NumberSelector(
+                        NumberSelectorConfig(min=1, max=8, step=1, mode=NumberSelectorMode.BOX)
+                    ),
+                    vol.Optional(
+                        CONF_TTS_MIN_SENTENCE_CHARS,
+                        default=current.get(CONF_TTS_MIN_SENTENCE_CHARS, DEFAULT_TTS_MIN_SENTENCE_CHARS),
+                    ): NumberSelector(
+                        NumberSelectorConfig(min=1, max=200, step=1, mode=NumberSelectorMode.BOX, unit_of_measurement="caractères")
+                    ),
+                    vol.Optional(
+                        CONF_TTS_SILENCE_MS,
+                        default=current.get(CONF_TTS_SILENCE_MS, DEFAULT_TTS_SILENCE_MS),
+                    ): NumberSelector(
+                        NumberSelectorConfig(min=0, max=2000, step=50, mode=NumberSelectorMode.BOX, unit_of_measurement="ms")
+                    ),
                 }
             ),
             errors=errors,
         )
+        
