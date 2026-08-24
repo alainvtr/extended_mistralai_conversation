@@ -2,6 +2,7 @@
 This is a custom component for Home Assistant.
 
 Derived from [Extended OpenAI Conversation]([https://www.home-assistant.io/integrations/openai_conversation/](https://github.com/jekalmin/extended_openai_conversation) and adapted to specific Mistal AI API
+And added TTS and STT from [Mistral AI Conversation]([https://github.com/SnarfNL/HA_MistralAI]
 
 ## Features
 - Ability to call service of Home Assistant
