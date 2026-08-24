@@ -1,5 +1,6 @@
 """Text-to-Speech platform for Mistral AI.
 From https://github.com/SnarfNL/HA_MistralAI
+
 Two operating modes selectable via integration options (CONF_TTS_MODE):
 
 * ``stream``: uses the streaming /v1/audio/speech endpoint with
@@ -543,4 +544,4 @@ class MistralTTSEntity(TextToSpeechEntity):
             normalized = _make_wav_size_unbounded(normalized)
 
         await out_queue.put(normalized)
-      
+        
