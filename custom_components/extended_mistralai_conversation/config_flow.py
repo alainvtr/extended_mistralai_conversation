@@ -9,12 +9,14 @@ import json
 import logging
 from typing import Any
 
+import aiohttp
 import voluptuous as vol
 import yaml
 from homeassistant import config_entries
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.selector import (
     NumberSelector,
     NumberSelectorConfig,
@@ -36,6 +38,7 @@ from .const import (
     DEFAULT_ALLOWED_DOMAINS,
     DEFAULT_ALLOWED_SERVICES,
     DEFAULT_BACKUP_PATH,
+    MISTRAL_API_BASE,
     CONF_TTS_VOICE,
     CONF_TTS_MODE,
     CONF_TTS_HEADROOM,
@@ -53,6 +56,37 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+
+async def _async_fetch_voices(hass: HomeAssistant, api_key: str) -> list[str]:
+    """Récupère la liste des voix disponibles depuis l'API Mistral (GET /v1/audio/voices).
+
+    Repli sur la liste statique TTS_VOICES en cas d'échec (réseau, clé
+    invalide, timeout, réponse inattendue) — le formulaire d'options ne
+    doit jamais se retrouver avec un menu de voix vide.
+    """
+    if not api_key:
+        return TTS_VOICES
+    try:
+        session = async_get_clientsession(hass)
+        async with session.get(
+            f"{MISTRAL_API_BASE}/audio/voices",
+            headers={"Authorization": f"Bearer {api_key}"},
+            params={"limit": 1000},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            if resp.status != 200:
+                _LOGGER.warning(
+                    "Impossible de récupérer les voix Mistral (HTTP %s) — repli sur la liste statique",
+                    resp.status,
+                )
+                return TTS_VOICES
+            data = await resp.json()
+            voices = sorted(item["id"] for item in data.get("items", []) if item.get("id"))
+            return voices or TTS_VOICES
+    except (aiohttp.ClientError, TimeoutError, KeyError, ValueError) as e:
+        _LOGGER.warning("Erreur lors de la récupération des voix Mistral : %s — repli sur la liste statique", e)
+        return TTS_VOICES
 
 
 async def _async_write_backup(hass: HomeAssistant, path: str, options: dict[str, Any]) -> None:
@@ -187,6 +221,14 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                 await _async_write_backup(self.hass, options["backup_path"], options)
                 return self.async_create_entry(title="", data=options)
 
+        api_key = self.config_entry.data.get("api_key")
+        voices = await _async_fetch_voices(self.hass, api_key)
+        current_voice = current.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE)
+        if current_voice not in voices:
+            # Ne jamais laisser le défaut du formulaire hors de la liste d'options —
+            # la voix configurée a pu être retirée du catalogue Mistral entre-temps.
+            voices = [current_voice] + voices
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
@@ -218,9 +260,9 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                     ): str,
                     vol.Optional(
                         CONF_TTS_VOICE,
-                        default=current.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE),
+                        default=current_voice,
                     ): SelectSelector(
-                        SelectSelectorConfig(options=TTS_VOICES, mode=SelectSelectorMode.DROPDOWN)
+                        SelectSelectorConfig(options=voices, mode=SelectSelectorMode.DROPDOWN)
                     ),
                     vol.Optional(
                         CONF_TTS_MODE,
