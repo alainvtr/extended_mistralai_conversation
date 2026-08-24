@@ -1,8 +1,8 @@
 # Extended Mistal AI Conversation
 This is a custom component for Home Assistant.
 
-Derived from [Extended OpenAI Conversation]([https://github.com/jekalmin/extended_openai_conversation] and adapted to specific Mistal AI API
-And added TTS and STT from [Mistral AI Conversation]([https://github.com/SnarfNL/HA_MistralAI] to have a full package to use with Mistral AI. The TTS from Mistral is very low compared to other TTS like Microsoft, Google, Open AI : so, a sound boost (normalize()) is dpne on the TTS.
+Derived from [Extended OpenAI Conversation][https://github.com/jekalmin/extended_openai_conversation] and adapted to specific Mistal AI API
+And added TTS and STT from [Mistral AI Conversation][https://github.com/SnarfNL/HA_MistralAI] to have a full package to use with Mistral AI. The TTS from Mistral is very low compared to other TTS like Microsoft, Google, Open AI : so, a sound boost (normalize()) is dpne on the TTS.
 
 ## Features
 - Ability to call service of Home Assistant
