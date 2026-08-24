@@ -1,4 +1,8 @@
-"""Mistral AI Conversation Agent for Home Assistant 2026.7.2."""
+"""
+From https://github.com/jekalmin/extended_openai_conversation
+From https://github.com/SnarfNL/HA_MistralAI
+Mistral AI Conversation Agent for Home Assistant 2026.7.2.
+"""
 from __future__ import annotations
 
 import json
