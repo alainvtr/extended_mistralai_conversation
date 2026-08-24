@@ -17,7 +17,7 @@ from .const import DOMAIN, DEFAULT_BACKUP_PATH, DEFAULT_TOOLS_CONFIG_PATH
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["conversation"]
+PLATFORMS = ["conversation", "tts", "stt"]
 
 SERVICE_EXPORT_OPTIONS = "export_options"
 SERVICE_IMPORT_OPTIONS = "import_options"
