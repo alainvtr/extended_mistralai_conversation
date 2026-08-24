@@ -1,4 +1,8 @@
-"""Config flow for Mistral AI Conversation integration."""
+"""
+    From https://github.com/jekalmin/extended_openai_conversation
+    From https://github.com/SnarfNL/HA_MistralAI
+Config flow for Mistral AI Conversation integration.
+"""
 from __future__ import annotations
 
 import json
