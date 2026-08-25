@@ -64,6 +64,7 @@ from .const import (
     CONF_TTS_MAX_INFLIGHT_SENTENCES,
     CONF_TTS_MIN_SENTENCE_CHARS,
     CONF_TTS_SILENCE_MS,
+    CONF_TTS_MODEL,
     DEFAULT_TTS_MODE,
     DEFAULT_TTS_VOICE,
     DEFAULT_TTS_HEADROOM,
@@ -167,7 +168,7 @@ class MistralTTSEntity(TextToSpeechEntity):
             identifiers={(DOMAIN, f"{self._entry.entry_id}_tts")},
             name="Mistral AI TTS",
             manufacturer="Mistral AI",
-            model=TTS_MODEL,
+            model=self._entry.options.get(CONF_TTS_MODEL, TTS_MODEL),
             entry_type=DeviceEntryType.SERVICE,
             configuration_url="https://docs.mistral.ai/capabilities/audio_generation",
         )
@@ -214,9 +215,10 @@ class MistralTTSEntity(TextToSpeechEntity):
         over the integration default (CONF_TTS_VOICE).
         """
         voice = options.get("voice") or self._entry.options.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE)
+        model = self._entry.options.get(CONF_TTS_MODEL, TTS_MODEL)
 
         payload = {
-            "model": TTS_MODEL,
+            "model": model,
             "input": message,
             "voice_id": voice,
             "response_format": "mp3",
@@ -476,7 +478,7 @@ class MistralTTSEntity(TextToSpeechEntity):
         lines emitted by the worker; logic does not depend on it.
         """
         payload = {
-            "model": TTS_MODEL,
+            "model": self._entry.options.get(CONF_TTS_MODEL, TTS_MODEL),
             "input": text,
             "voice_id": voice,
             "response_format": "wav",
@@ -544,4 +546,3 @@ class MistralTTSEntity(TextToSpeechEntity):
             normalized = _make_wav_size_unbounded(normalized)
 
         await out_queue.put(normalized)
-        
