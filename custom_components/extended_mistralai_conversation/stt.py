@@ -122,8 +122,8 @@ class MistralSTTEntity(SpeechToTextEntity):
     empty), Voxtral uses automatic language detection.
     """
 
-    _attr_has_entity_name = True
-    _attr_name = None  # une seule entité par appareil : HA affiche juste le nom de l'appareil, sans suffixe (évite le doublon "Mistral AI STT Mistral AI STT (Voxtral)")
+    _attr_has_entity_name = False  # <-- pas de combinaison auto "nom appareil + nom entité" (source du doublon) ; nom complet ci-dessous
+    _attr_name = "Mistral AI STT (Voxtral)"  # <-- doit être une vraie chaîne : Entity.name=None fait planter le composant TTS/STT de HA ("engine name is not set")
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
