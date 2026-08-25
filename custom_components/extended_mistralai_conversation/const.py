@@ -38,6 +38,12 @@ DEFAULT_TTS_MODE = TTS_MODE_STREAM
 STT_MODEL = "voxtral-mini-latest"
 TTS_MODEL = "voxtral-mini-tts-2603"
 
+# Modèles audio configurables (Options Flow, menu déroulant peuplé depuis
+# /v1/models, filtré sur capabilities.audio_transcription / .audio_speech).
+# STT_MODEL / TTS_MODEL ci-dessus restent les valeurs par défaut.
+CONF_STT_MODEL = "stt_model"
+CONF_TTS_MODEL = "tts_model_id"
+
 TTS_VOICES = [
     "en_paul_angry", "en_paul_cheerful", "en_paul_confident", "en_paul_excited",
     "en_paul_frustrated", "en_paul_happy", "en_paul_neutral", "en_paul_sad",
