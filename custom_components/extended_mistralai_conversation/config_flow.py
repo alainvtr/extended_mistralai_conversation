@@ -13,6 +13,7 @@ import aiohttp
 import voluptuous as vol
 import yaml
 from homeassistant import config_entries
+from homeassistant.components import persistent_notification
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.data_entry_flow import FlowResult
@@ -39,6 +40,8 @@ from .const import (
     DEFAULT_ALLOWED_SERVICES,
     DEFAULT_BACKUP_PATH,
     MISTRAL_API_BASE,
+    STT_MODEL,
+    TTS_MODEL,
     CONF_TTS_VOICE,
     CONF_TTS_MODE,
     CONF_TTS_HEADROOM,
@@ -56,6 +59,8 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+AUDIO_MODEL_NOTIFICATION_ID = "extended_mistralai_conversation_audio_model_check"
 
 
 async def _async_fetch_voices(hass: HomeAssistant, api_key: str) -> list[str]:
@@ -87,6 +92,81 @@ async def _async_fetch_voices(hass: HomeAssistant, api_key: str) -> list[str]:
     except (aiohttp.ClientError, TimeoutError, KeyError, ValueError) as e:
         _LOGGER.warning("Erreur lors de la récupération des voix Mistral : %s — repli sur la liste statique", e)
         return TTS_VOICES
+
+
+async def _async_fetch_models(hass: HomeAssistant, api_key: str) -> list[str]:
+    """Récupère les modèles disponibles pour ce compte (GET /v1/models).
+
+    Filtré sur les modèles utilisables par cette intégration : conversationnels
+    (completion_chat) ET compatibles function calling (indispensable pour les
+    tools assist_timer/execute_services/etc. — sans ça un modèle sélectionnable
+    casserait silencieusement l'appel d'outils), non archivés.
+
+    Repli sur [DEFAULT_MODEL] en cas d'échec (réseau, clé invalide, timeout,
+    réponse inattendue) — le formulaire ne doit jamais se retrouver avec un
+    menu de modèles vide.
+    """
+    if not api_key:
+        return [DEFAULT_MODEL]
+    try:
+        session = async_get_clientsession(hass)
+        async with session.get(
+            f"{MISTRAL_API_BASE}/models",
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            if resp.status != 200:
+                _LOGGER.warning(
+                    "Impossible de récupérer les modèles Mistral (HTTP %s) — repli sur %s",
+                    resp.status,
+                    DEFAULT_MODEL,
+                )
+                return [DEFAULT_MODEL]
+            data = await resp.json()
+            # L'API renvoie une liste brute selon la doc actuelle, mais on tolère
+            # aussi une éventuelle enveloppe {"data": [...]} par prudence.
+            items = data if isinstance(data, list) else data.get("data", [])
+            models = sorted(
+                item["id"]
+                for item in items
+                if item.get("id")
+                and not item.get("archived", False)
+                and item.get("capabilities", {}).get("completion_chat")
+                and item.get("capabilities", {}).get("function_calling")
+            )
+            return models or [DEFAULT_MODEL]
+    except (aiohttp.ClientError, TimeoutError, KeyError, ValueError) as e:
+        _LOGGER.warning("Erreur lors de la récupération des modèles Mistral : %s — repli sur %s", e, DEFAULT_MODEL)
+        return [DEFAULT_MODEL]
+
+
+async def _async_check_audio_models(hass: HomeAssistant, api_key: str) -> list[str]:
+    """Vérifie que STT_MODEL et TTS_MODEL apparaissent dans /v1/models de ce compte.
+
+    Renvoie la liste des identifiants absents (vide si tout va bien, ou si la
+    vérification elle-même a échoué — on ne bloque jamais sur un doute, cette
+    fonction est purement informative). Non garanti : rien ne confirme à 100%
+    que les modèles audio (Voxtral) sont listés au même endroit que les
+    modèles de chat — à vérifier empiriquement une fois déployé.
+    """
+    if not api_key:
+        return []
+    try:
+        session = async_get_clientsession(hass)
+        async with session.get(
+            f"{MISTRAL_API_BASE}/models",
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            if resp.status != 200:
+                return []
+            data = await resp.json()
+            items = data if isinstance(data, list) else data.get("data", [])
+            available_ids = {item.get("id") for item in items}
+    except (aiohttp.ClientError, TimeoutError, ValueError):
+        return []
+
+    return [m for m in (STT_MODEL, TTS_MODEL) if m not in available_ids]
 
 
 async def _async_write_backup(hass: HomeAssistant, path: str, options: dict[str, Any]) -> None:
@@ -127,16 +207,13 @@ class MistralAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 data_schema=vol.Schema(
                     {
                         vol.Required("api_key"): str,
-                        vol.Optional(
-                            "model", default=self._backup_options.get("model", DEFAULT_MODEL)
-                        ): str,
                     }
                 ),
             )
 
         backup_path = self._backup_options.get("backup_path", DEFAULT_BACKUP_PATH)
         options = {
-            "model": user_input.get("model", DEFAULT_MODEL),
+            "model": self._backup_options.get("model", DEFAULT_MODEL),
             "tools_config_path": self._backup_options.get("tools_config_path", DEFAULT_TOOLS_CONFIG_PATH),
             "prompt_path": self._backup_options.get("prompt_path", DEFAULT_PROMPT_PATH),
             "allowed_domains": self._backup_options.get("allowed_domains", DEFAULT_ALLOWED_DOMAINS),
@@ -229,11 +306,40 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
             # la voix configurée a pu être retirée du catalogue Mistral entre-temps.
             voices = [current_voice] + voices
 
+        api_key = self.config_entry.data.get("api_key")
+        voices = await _async_fetch_voices(self.hass, api_key)
+        current_voice = current.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE)
+        if current_voice not in voices:
+            # Ne jamais laisser le défaut du formulaire hors de la liste d'options —
+            # la voix configurée a pu être retirée du catalogue Mistral entre-temps.
+            voices = [current_voice] + voices
+
+        models = await _async_fetch_models(self.hass, api_key)
+        current_model = current.get("model", DEFAULT_MODEL)
+        if current_model not in models:
+            models = [current_model] + models
+
+        missing_audio_models = await _async_check_audio_models(self.hass, api_key)
+        if missing_audio_models:
+            persistent_notification.async_create(
+                self.hass,
+                "Le(s) modèle(s) audio suivant(s) n'apparaissent plus dans /v1/models "
+                f"de votre compte : {', '.join(missing_audio_models)}. "
+                "Ils sont peut-être dépréciés ou renommés côté Mistral — vérifiez sur "
+                "docs.mistral.ai/models et mettez à jour STT_MODEL/TTS_MODEL dans const.py si besoin.",
+                title="Extended Mistral AI Conversation — modèle audio introuvable",
+                notification_id=AUDIO_MODEL_NOTIFICATION_ID,
+            )
+        else:
+            persistent_notification.async_dismiss(self.hass, AUDIO_MODEL_NOTIFICATION_ID)
+
         return self.async_show_form(
             step_id="init",
             data_schema=vol.Schema(
                 {
-                    vol.Optional("model", default=current.get("model", DEFAULT_MODEL)): str,
+                    vol.Optional("model", default=current_model): SelectSelector(
+                        SelectSelectorConfig(options=models, mode=SelectSelectorMode.DROPDOWN, custom_value=True)
+                    ),
                     vol.Optional(
                         "tools_config_path",
                         default=current.get("tools_config_path", DEFAULT_TOOLS_CONFIG_PATH),
