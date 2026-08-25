@@ -123,7 +123,7 @@ class MistralSTTEntity(SpeechToTextEntity):
     """
 
     _attr_has_entity_name = True
-    _attr_name = "Mistral AI STT (Voxtral)"
+    _attr_name = None  # une seule entité par appareil : HA affiche juste le nom de l'appareil, sans suffixe (évite le doublon "Mistral AI STT Mistral AI STT (Voxtral)")
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
@@ -258,3 +258,4 @@ def _pcm_to_wav(
         wf.setframerate(sample_rate)
         wf.writeframes(pcm_data)
     return buf.getvalue()
+  
