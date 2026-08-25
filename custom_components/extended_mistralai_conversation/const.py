@@ -80,4 +80,4 @@ TTS_SILENCE_BYTES_PER_MS = 48
 # Gain cible (headroom, en dB) appliqué par normalize() sur l'audio TTS —
 # plus la valeur est basse, plus le volume final est fort.
 CONF_TTS_HEADROOM = "tts_headroom"
-DEFAULT_TTS_HEADROOM = 2.6
+DEFAULT_TTS_HEADROOM = 5.2
