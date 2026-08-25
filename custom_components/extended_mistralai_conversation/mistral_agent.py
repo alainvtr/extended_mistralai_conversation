@@ -85,8 +85,16 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
 
     @property
     def supported_languages(self) -> list[str] | Literal["*"]:
-        """Retourne la liste des langues supportées par l'agent."""
-        return ["fr"]
+        """Retourne les langues supportées par l'agent.
+
+        MATCH_ALL (déjà importé, jusque-là inutilisé) plutôt que ["fr"] figé :
+        rend l'agent éligible à n'importe quel pipeline Assist, quelle que soit
+        sa langue système (hass.config.language) — utile si un second pipeline
+        dans une autre langue est créé un jour. Le prompt (static_prompt)
+        continue d'imposer des réponses en français indépendamment de ceci ;
+        ça ne change rien tant qu'un seul pipeline, en français, existe.
+        """
+        return MATCH_ALL
 
     def _get_exposed_entities(self) -> list[dict]:
         """Retourne la liste des entités exposées pour Assist."""
@@ -306,3 +314,4 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
 
         template = Template(self.prompt_template, self.hass)
         return template.async_render(variables=template_vars)
+        
