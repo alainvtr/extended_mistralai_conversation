@@ -149,7 +149,7 @@ class MistralTTSEntity(TextToSpeechEntity):
     """
 
     _attr_has_entity_name = True
-    _attr_name = "Mistral AI TTS"
+    _attr_name = None  # une seule entité par appareil : HA affiche juste le nom de l'appareil, sans suffixe (évite le doublon "Mistral AI TTS Mistral AI TTS")
 
     def __init__(self, hass: HomeAssistant, entry: ConfigEntry) -> None:
         self.hass = hass
@@ -546,3 +546,4 @@ class MistralTTSEntity(TextToSpeechEntity):
             normalized = _make_wav_size_unbounded(normalized)
 
         await out_queue.put(normalized)
+      
