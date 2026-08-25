@@ -13,7 +13,7 @@ And i've added TTS and STT from [Mistral AI Conversation][https://github.com/Sna
 
 ## How it works
 Extended Mistrail AI Conversation uses Mistal AI API's feature like https://api.mistral.ai/v1/chat/completions.
-You can create scripts that Mistral AI can execute when their description match (see the content of mistral_tools.yaml)
+You can create scripts that Mistral AI can execute when their description match (see some examples in the file mistral_tools.yaml)
 
 ## Manual installation
 1. Copy `extended_openai_conversation` folder into `<config directory>/custom_components`
@@ -36,12 +36,13 @@ You can create scripts that Mistral AI can execute when their description match 
 
 1. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
 2. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
-3. Go to Settings then Devices & Services and clic on Add Integration
+3. Go to Settings then Devices & Services and click on Add Integration
 4. Search for Extended Mistral AI Conversation
-5. Enter your API key and submit
-6. Review & adapt the other config params to your needs
-7. Validate
-8. Go to Settings > [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
+5. Enter your API key
+6. Choose a model among the list available for your account (for a free one, i suggest mistral-small) and submit
+7. Adapt name and room to your choice and submit
+8. Review & adapt the other config params to your needs and submit
+10. Go to Settings > [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
 11. Click to edit Assistant (named "Home Assistant" by default).
 12. Select "Extended MistralAI Conversation" from "Conversation agent" tab.
     
