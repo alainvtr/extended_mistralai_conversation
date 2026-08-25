@@ -42,6 +42,8 @@ from .const import (
     MISTRAL_API_BASE,
     STT_MODEL,
     TTS_MODEL,
+    CONF_STT_MODEL,
+    CONF_TTS_MODEL,
     CONF_TTS_VOICE,
     CONF_TTS_MODE,
     CONF_TTS_HEADROOM,
@@ -169,6 +171,32 @@ async def _async_check_audio_models(hass: HomeAssistant, api_key: str) -> list[s
     return [m for m in (STT_MODEL, TTS_MODEL) if m not in available_ids]
 
 
+async def _async_fetch_audio_models(hass: HomeAssistant, api_key: str, capability: str, default: str) -> list[str]:
+    """Récupère les modèles dont capabilities[capability] est vrai (ex: 'audio_transcription'
+    pour le STT, 'audio_speech' pour le TTS). Repli sur [default] en cas d'échec.
+    """
+    if not api_key:
+        return [default]
+    try:
+        session = async_get_clientsession(hass)
+        async with session.get(
+            f"{MISTRAL_API_BASE}/models",
+            headers={"Authorization": f"Bearer {api_key}"},
+            timeout=aiohttp.ClientTimeout(total=10),
+        ) as resp:
+            if resp.status != 200:
+                return [default]
+            data = await resp.json()
+            items = data if isinstance(data, list) else data.get("data", [])
+            models = sorted(
+                item["id"] for item in items
+                if item.get("id") and item.get("capabilities", {}).get(capability)
+            )
+            return models or [default]
+    except (aiohttp.ClientError, TimeoutError, ValueError):
+        return [default]
+
+
 async def _async_write_backup(hass: HomeAssistant, path: str, options: dict[str, Any]) -> None:
     """Écrit les options courantes dans le fichier de backup (best-effort : n'empêche jamais la validation)."""
     try:
@@ -228,6 +256,8 @@ class MistralAIConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 CONF_TTS_MIN_SENTENCE_CHARS, DEFAULT_TTS_MIN_SENTENCE_CHARS
             ),
             CONF_TTS_SILENCE_MS: self._backup_options.get(CONF_TTS_SILENCE_MS, DEFAULT_TTS_SILENCE_MS),
+            CONF_STT_MODEL: self._backup_options.get(CONF_STT_MODEL, STT_MODEL),
+            CONF_TTS_MODEL: self._backup_options.get(CONF_TTS_MODEL, TTS_MODEL),
             "backup_path": backup_path,
         }
 
@@ -290,6 +320,8 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                     CONF_TTS_HEADROOM: user_input[CONF_TTS_HEADROOM],
                     CONF_TTS_MAX_INFLIGHT_SENTENCES: int(user_input[CONF_TTS_MAX_INFLIGHT_SENTENCES]),
                     CONF_TTS_MIN_SENTENCE_CHARS: int(user_input[CONF_TTS_MIN_SENTENCE_CHARS]),
+                    CONF_STT_MODEL: user_input[CONF_STT_MODEL],
+                    CONF_TTS_MODEL: user_input[CONF_TTS_MODEL],
                     CONF_TTS_SILENCE_MS: int(user_input[CONF_TTS_SILENCE_MS]),
                     "backup_path": user_input["backup_path"],
                 }
@@ -306,18 +338,20 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
             # la voix configurée a pu être retirée du catalogue Mistral entre-temps.
             voices = [current_voice] + voices
 
-        api_key = self.config_entry.data.get("api_key")
-        voices = await _async_fetch_voices(self.hass, api_key)
-        current_voice = current.get(CONF_TTS_VOICE, DEFAULT_TTS_VOICE)
-        if current_voice not in voices:
-            # Ne jamais laisser le défaut du formulaire hors de la liste d'options —
-            # la voix configurée a pu être retirée du catalogue Mistral entre-temps.
-            voices = [current_voice] + voices
-
         models = await _async_fetch_models(self.hass, api_key)
         current_model = current.get("model", DEFAULT_MODEL)
         if current_model not in models:
             models = [current_model] + models
+
+        stt_models = await _async_fetch_audio_models(self.hass, api_key, "audio_transcription", STT_MODEL)
+        current_stt_model = current.get(CONF_STT_MODEL, STT_MODEL)
+        if current_stt_model not in stt_models:
+            stt_models = [current_stt_model] + stt_models
+
+        tts_models = await _async_fetch_audio_models(self.hass, api_key, "audio_speech", TTS_MODEL)
+        current_tts_model = current.get(CONF_TTS_MODEL, TTS_MODEL)
+        if current_tts_model not in tts_models:
+            tts_models = [current_tts_model] + tts_models
 
         missing_audio_models = await _async_check_audio_models(self.hass, api_key)
         if missing_audio_models:
@@ -364,6 +398,18 @@ class MistralOptionsFlowHandler(config_entries.OptionsFlow):
                         "backup_path",
                         default=current.get("backup_path", DEFAULT_BACKUP_PATH),
                     ): str,
+                    vol.Optional(
+                        CONF_STT_MODEL,
+                        default=current_stt_model,
+                    ): SelectSelector(
+                        SelectSelectorConfig(options=stt_models, mode=SelectSelectorMode.DROPDOWN, custom_value=True)
+                    ),
+                    vol.Optional(
+                        CONF_TTS_MODEL,
+                        default=current_tts_model,
+                    ): SelectSelector(
+                        SelectSelectorConfig(options=tts_models, mode=SelectSelectorMode.DROPDOWN, custom_value=True)
+                    ),
                     vol.Optional(
                         CONF_TTS_VOICE,
                         default=current_voice,
