@@ -31,6 +31,7 @@ from .const import (
     DOMAIN,
     MISTRAL_API_BASE,
     STT_MODEL,
+    CONF_STT_MODEL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ class MistralSTTEntity(SpeechToTextEntity):
             identifiers={(DOMAIN, f"{self._entry.entry_id}_stt")},
             name="Mistral AI STT",
             manufacturer="Mistral AI",
-            model=STT_MODEL,
+            model=self._entry.options.get(CONF_STT_MODEL, STT_MODEL),
             entry_type=DeviceEntryType.SERVICE,
             configuration_url="https://docs.mistral.ai/capabilities/audio_transcription",
         )
@@ -215,7 +216,7 @@ class MistralSTTEntity(SpeechToTextEntity):
                 filename="audio.wav",
                 content_type="application/octet-stream",
             )
-            form.add_field("model", STT_MODEL)
+            form.add_field("model", self._entry.options.get(CONF_STT_MODEL, STT_MODEL))
             if lang_code:
                 form.add_field("language", lang_code)
 
@@ -257,4 +258,3 @@ def _pcm_to_wav(
         wf.setframerate(sample_rate)
         wf.writeframes(pcm_data)
     return buf.getvalue()
-  
