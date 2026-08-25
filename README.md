@@ -1,8 +1,8 @@
 # Extended Mistal AI Conversation
 This is a custom component for Home Assistant.
 
-Derived from [Extended OpenAI Conversation][https://github.com/jekalmin/extended_openai_conversation] and adapted to specific Mistal AI API.
-And i've added TTS and STT from [Mistral AI Conversation][https://github.com/SnarfNL/HA_MistralAI] to have a full package to use with Mistral AI. The TTS from Mistral is very low compared to other TTS like Microsoft, Google, Open AI : so, a sound boost (normalize()) is done on the TTS.
+Derived from [Extended OpenAI Conversation](https://github.com/jekalmin/extended_openai_conversation) and adapted to specific Mistal AI API.
+And i've added TTS and STT from [Mistral AI Conversation](https://github.com/SnarfNL/HA_MistralAI) to have a full package to use with Mistral AI. The TTS from Mistral is very low compared to other TTS like Microsoft, Google, Open AI : so, a sound boost (normalize()) is done on the TTS.
 
 ## Features
 - Ability to call service of Home Assistant
@@ -38,11 +38,11 @@ You can create scripts that Mistral AI can execute when their description match 
 2. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
 3. Go to Settings then Devices & Services and click on Add Integration
 4. Search for Extended Mistral AI Conversation
-5. Enter your API key
+5. Enter your Mistral API key
 6. Choose a model among the list available for your account (for a free one, i suggest mistral-small) and submit
 7. Adapt name and room to your choice and submit
 8. Review & adapt the other config params to your needs and submit
-10. Go to Settings > [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
+10. Go to Settings then [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
 11. Click to edit Assistant (named "Home Assistant" by default).
 12. Select "Extended MistralAI Conversation" from "Conversation agent" tab.
     
