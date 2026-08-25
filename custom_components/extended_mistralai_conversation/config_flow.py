@@ -79,7 +79,6 @@ async def _async_fetch_voices(hass: HomeAssistant, api_key: str) -> list[str]:
         async with session.get(
             f"{MISTRAL_API_BASE}/audio/voices",
             headers={"Authorization": f"Bearer {api_key}"},
-            params={"limit": 1000},
             timeout=aiohttp.ClientTimeout(total=10),
         ) as resp:
             if resp.status != 200:
