@@ -78,7 +78,7 @@ When all is configured, you need to expose entities in  [Voice Assistants]("http
 - `scrape`: Scraping information from website
 - `composite`: A sequence of functions to execute. 
 
-Below is a default configuration of functions.
+Below is the basic configuration of functions.
 
 ```yaml
 - spec:
