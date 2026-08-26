@@ -12,7 +12,7 @@ DEFAULT_ALLOWED_DOMAINS = ["light", "cover", "script", "media_player"]
 DEFAULT_ALLOWED_SERVICES = {
     "light": ["turn_on", "turn_off", "toggle"],
     "cover": ["open_cover", "close_cover", "set_cover_position"],
-    "script": ["turn_on", "turn_off", "assist_timer", "extinction_musique"],
+    "script": ["turn_on", "turn_off", "toggle"],
     "media_player": ["volume_set", "media_play_pause", "turn_on", "turn_off"],
 }
 DEFAULT_BACKUP_PATH = "/share/extended_mistralai_conversation_options.json"
