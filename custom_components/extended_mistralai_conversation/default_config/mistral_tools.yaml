@@ -63,7 +63,7 @@ tools:
                 {{ (as_datetime(start_time) + timedelta(minutes=30)).isoformat() }}
               {% endif %}
           target:
-            entity_id: calendar.alain_vautrain_gmail_com
+            entity_id: calendar.xxx_yyy_gmail_com
 
   - name: assist_timer
     description: "Démarre un rappel ou timer pour le four, la plaque, ou un usage générique. Si une date de fin est donnée, calcule la durée en heures/minutes/secondes par rapport à maintenant."
@@ -113,13 +113,13 @@ tools:
               {{ candidats[0] if candidats else satellite_id }}
 
   - name: add_one_note
-    description: Ajoute une note ou une tâche dans todo.assist au sujet d'une chose importante dont je dois me rappeler
+    description: "Ajoute une note ou une tâche dans todo.assist au sujet d'une chose importante dont je dois me rappeler"
     parameters:
       type: object
       properties:
         item:
           type: string
-          description: La note ou tâche à ajouter à todo.assist
+          description: "La note ou tâche à ajouter à todo.assist"
       required:
       - item
     function:
@@ -132,13 +132,13 @@ tools:
           entity_id: todo.assist
 
   - name: list_all_notes
-    description: Permet de me donner la liste des notes ou tâches mémorisées dans todo.assist
+    description: "Permet de me donner la liste des notes ou tâches mémorisées dans todo.assist"
     parameters:
       type: object
       properties:
         memory:
           type: string
-          description: entity id de la liste des choses dont je dois me rappeler
+          description: "entity_id de la liste des choses dont je dois me rappeler"
           enum:
             - todo.assist
       required:
@@ -154,13 +154,13 @@ tools:
         response_variable: _function_result
 
   - name: get_weather
-    description: Donne la météo prévue sur une ville que je te donne. Si je ne donne pas de ville, tu dois utiliser la ville de Lyon.
+    description: "Permet d'obtenir la météo prévue sur une ville que je te donne."
     parameters:
       type: object
       properties:
         city_id:
           type: string
-          description: City of the weather forecast.
+          description: "Ville pour laquelle je veux la météo."
       required:
         - city_id
     function:
@@ -171,13 +171,13 @@ tools:
       value_template: '{{value_json}}'
 
   - name: get_attributes
-    description: Get attributes of any home assistant entity
+    description: "Get attributes of any home assistant entity"
     parameters:
       type: object
       properties:
         entity_id:
           type: string
-          description: entity_id
+          description: "entity_id"
       required:
       - entity_id
     function:
@@ -185,13 +185,13 @@ tools:
       value_template: "{{states[entity_id]}}"
 
   - name: get_tcl_maison_to_cisl
-    description: Utilise cette fonction pour trouver le prochain horaire de départ du tramway T4 vers le CISL ou la NRL depuis la maison.
+    description: "Utilise cette fonction pour trouver le prochain horaire de départ du tramway T4 vers le CISL ou la NRL depuis la maison."
     parameters:
       type: object
       properties:
         dummy:
           type: string
-          description: Nothing
+          description: "Nothing"
     function:
       type: template
       value_template: >
@@ -210,13 +210,13 @@ tools:
         {%- endif -%}
 
   - name: get_tcl_cisl_to_maison
-    description: Utilise cette fonction pour trouver le prochain horaire de départ du tramway T4 vers la maison depuis le CISL ou la NRL.
+    description: "Utilise cette fonction pour trouver le prochain horaire de départ du tramway T4 vers la maison depuis le CISL ou la NRL."
     parameters:
       type: object
       properties:
         dummy:
           type: string
-          description: Nothing
+          description: "Nothing"
     function:
       type: template
       value_template: >
@@ -235,16 +235,16 @@ tools:
         {%- endif -%}
 
   - name: get_events
-    description: Utilise cette fonction pour connaitre la liste des évènements ou rendez-vous ou rappels qui sont dans mon calendrier ou mon agenda. N'ajoute pas de symboles comme des étoiles ou des astérisques dans ta réponse. Si je te donne juste le mois, tu utilises les dates de début de mois et de fin de mois.
+    description: "Utilise cette fonction pour connaitre la liste des évènements ou rendez-vous ou rappels qui sont dans mon calendrier ou mon agenda. N'ajoute pas de symboles comme des étoiles ou des astérisques dans ta réponse. Si je te donne juste le mois, tu utilises les dates de début de mois et de fin de mois."
     parameters:
       type: object
       properties:
         start_date_time:
           type: string
-          description: The start date time in '%Y-%m-%dT%H:%M:%S%z' format
+          description: "The start date time in '%Y-%m-%dT%H:%M:%S%z' format"
         end_date_time:
           type: string
-          description: The end date time in '%Y-%m-%dT%H:%M:%S%z' format
+          description: "The end date time in '%Y-%m-%dT%H:%M:%S%z' format"
       required:
       - start_date_time
       - end_date_time
@@ -273,7 +273,7 @@ tools:
             {{ ns.cal_events }}
 
   - name: search_brave
-    description: utiliser cette fonction pour réaliser une recherche sur un sujet qui n'est pas lié à une demande sur le système domotique
+    description: "utilise cette fonction pour réaliser une recherche sur un sujet qui n'est pas lié à une demande sur le système domotique"
     parameters:
       type: object
       properties:
@@ -298,7 +298,7 @@ tools:
         {% endif %}
 
   - name: allume_pour_canalplus
-    description: à utiliser quand il y a une demande pour regarder canal plus
+    description: "Utilise quand il y a une demande pour regarder canal plus"
     function:
       type: script
       sequence:
@@ -306,7 +306,7 @@ tools:
           data: {}
 
   - name: allume_pour_netflix_amazon_streaming
-    description: à utiliser quand il y a une demande pour regarder netflix ou pour regarder amazon ou pour regarder du streaming
+    description: "utilise quand il y a une demande pour regarder netflix ou pour regarder amazon ou pour regarder du streaming"
     function:
       type: script
       sequence:
@@ -314,7 +314,7 @@ tools:
           data: {}
 
   - name: lancer_musique
-    description: à utiliser quand il y a une demande pour écouter de la musique
+    description: "utilise quand il y a une demande pour écouter de la musique"
     function:
       type: script
       sequence:
@@ -322,7 +322,7 @@ tools:
           response_variable: _function_result
 
   - name: surveille_charge
-    description: TOUJOURS utiliser pour répondre à une demande de surveillance de mise en charge d'un téléphone mobile ou d'une tablette, même si le niveau de batterie est connu. Ne pas répondre directement, utiliser cette fonction
+    description: "TOUJOURS utiliser pour répondre à une demande de surveillance de mise en charge d'un téléphone mobile ou d'une tablette, même si le niveau de batterie est connu. Ne pas répondre directement, utiliser cette fonction"
     function:
       type: script
       sequence:
@@ -330,7 +330,7 @@ tools:
           response_variable: _function_result
 
   - name: alarme_sonore
-    description: mise en route de l'alarme en mode sonore
+    description: "mise en route de l'alarme en mode sonore"
     function:
       type: script
       sequence:
@@ -338,7 +338,7 @@ tools:
           response_variable: _function_result
 
   - name: alarme_silencieux
-    description: mise en route de l'alarme en mode silencieux
+    description: "mise en route de l'alarme en mode silencieux"
     function:
       type: script
       sequence:
@@ -346,7 +346,7 @@ tools:
           response_variable: _function_result
 
   - name: alarme_stop
-    description: arrêt de l'alarme
+    description: "arrêt de l'alarme"
     function:
       type: script
       sequence:
@@ -354,71 +354,65 @@ tools:
           response_variable: _function_result
 
   - name: trains_de_macon_a_lyon
-    description: donne la liste des trois prochains trains qui partent de Mâcon et arrivent à Lyon Part Dieu.Donne aussi le type de train dans ta réponse.
+    description: "donne la liste des trois prochains trains qui partent de Mâcon et arrivent à Lyon Part Dieu. Indique aussi le type de train dans ta réponse."
     function:
       type: template
       value_template: >-
         {% set sensor = 'sensor.macon_to_lyon' %}
-        {% set dest_id = state_attr(sensor,'destination_station_stop_id').split('-')[-1] %}
-        {% set arrive = as_local(as_datetime(state_attr(sensor,'arrival'))) %}
-        {% set start = as_local(as_datetime(state_attr(sensor,'origin_stop_departure_time'))) %}
-        {% set delai = arrive - start %}
-      
-        {% set numeros = state_attr(sensor,'next_departures_headsign') | regex_findall('\((\d+)\)') %}
-        {% set trips = state_attr(sensor,'next_departures_trips') %}
-      
         {% set ns = namespace(result=[]) %}
-        {% for departure in state_attr(sensor,'next_departures')[:5] %}
-          {% set depart = as_local(as_datetime(departure)) %}
-          {% set trip = trips[loop.index0] %}
-          {% set type_train = trip.split('::')[0].split(':')[1] %}
-          {% set nums = trip.split('::')[-1].split(':') %}
-          {% if nums[1] == dest_id %}
-            {% set hhmm = nums[3].zfill(4) %}
-            {% set arrivee = depart.replace(hour=hhmm[:2]|int, minute=hhmm[2:]|int, second=0) %}
-          {% else %}
-            {% set arrivee = depart + delai %}
-          {% endif %}
-          {% set ns.result = ns.result + [dict(
-              départ=depart.strftime('%H:%M'),
-              arrivée=arrivee.strftime('%H:%M'),
-              train=numeros[loop.index0],
-              type=('TER' if type_train == 'TER' else 'TGV')
-          )] %}
-        {% endfor %}
+        {% if states(sensor) in ['unavailable', 'unknown', 'none'] %}
+           {{ ns.result | join('Plus de trains ce jour\n') }}
+        {% else %}
+          {% set numeros = state_attr(sensor,'next_departures_headsign') | regex_findall('\((\d+)\)') %}
+          {% set trips = state_attr(sensor,'next_departures_trips') %}
+          {% set arrivals = state_attr(sensor,'next_departures_destination_arrival_times') %}
+          {% for departure in state_attr(sensor,'next_departures')[:5] %}
+            {% set depart = as_local(as_datetime(departure)) %}
+            {% set arrivee = as_local(as_datetime(arrivals[loop.index0])) %}
+            {% set duree = arrivee - depart %}
+            {% set trip = trips[loop.index0] %}
+            {% set type_train = trip.split('::')[0].split(':')[1] %}
+            {% if depart > now() %}
+              {% set ns.result = ns.result + [dict(
+                  départ_hhmm=depart.strftime('%H:%M'),
+                  arrivée_hhmm=arrivee.strftime('%H:%M'),
+                  train=numeros[loop.index0],
+                  durée_minutes=duree.total_minutes(),
+                  type=('TER' if type_train == 'TER' else 'Intercités' if type_train == 'IC' else 'TGV')
+                  )] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
         {{ ns.result | join('\n') }}
 
   - name: trains_de_lyon_a_macon
-    description: donne la liste des trois prochains trains qui partent de Lyon Part Dieu et arrivent à Mâcon. Donne aussi le type de train dans ta réponse.
+    description: "donne la liste des trois prochains trains qui partent de Lyon Part Dieu et arrivent à Mâcon. Donne aussi le type de train dans ta réponse."
     function:
       type: template
       value_template: >-
         {% set sensor = 'sensor.lyon_to_macon' %}
-        {% set dest_id = state_attr(sensor,'destination_station_stop_id').split('-')[-1] %}
-        {% set arrive = as_local(as_datetime(state_attr(sensor,'arrival'))) %}
-        {% set start = as_local(as_datetime(state_attr(sensor,'origin_stop_departure_time'))) %}
-        {% set delai = arrive - start %}
-      
-        {% set numeros = state_attr(sensor,'next_departures_headsign') | regex_findall('\((\d+)\)') %}
-        {% set trips = state_attr(sensor,'next_departures_trips') %}
-      
         {% set ns = namespace(result=[]) %}
-        {% for departure in state_attr(sensor,'next_departures')[:5] %}
-          {% set depart = as_local(as_datetime(departure)) %}
-          {% set trip = trips[loop.index0] %}
-          {% set type_train = trip.split('::')[0].split(':')[1] %}
-          {% set nums = trip.split('::')[-1].split(':') %}
-          {% if nums[1] == dest_id %}
-            {% set hhmm = nums[3].zfill(4) %}
-            {% set arrivee = depart.replace(hour=hhmm[:2]|int, minute=hhmm[2:]|int, second=0) %}
-          {% else %}
-            {% set arrivee = depart + delai %}
-          {% endif %}
-          {% set ns.result = ns.result + [dict(
-              départ=depart.strftime('%H:%M'),
-              arrivée=arrivee.strftime('%H:%M'),
-              train=numeros[loop.index0],
-              type=('TER' if type_train == 'TER' else 'TGV')
-          )] %}
-        {% endfor %}
+        {% if states(sensor) in ['unavailable', 'unknown', 'none'] %}
+           {{ ns.result | join('Plus de trains ce jour\n') }}
+        {% else %}
+          {% set numeros = state_attr(sensor,'next_departures_headsign') | regex_findall('\((\d+)\)') %}
+          {% set trips = state_attr(sensor,'next_departures_trips') %}
+          {% set arrivals = state_attr(sensor,'next_departures_destination_arrival_times') %}
+          {% for departure in state_attr(sensor,'next_departures')[:5] %}
+            {% set depart = as_local(as_datetime(departure)) %}
+            {% set arrivee = as_local(as_datetime(arrivals[loop.index0])) %}
+            {% set duree = arrivee - depart %}
+            {% set trip = trips[loop.index0] %}
+            {% set type_train = trip.split('::')[0].split(':')[1] %}
+            {% if depart > now() %}
+              {% set ns.result = ns.result + [dict(
+                  départ_hhmm=depart.strftime('%H:%M'),
+                  arrivée_hhmm=arrivee.strftime('%H:%M'),
+                  train=numeros[loop.index0],
+                  durée_minutes=duree.total_minutes(),
+                  type=('TER' if type_train == 'TER' else 'Intercités' if type_train == 'IC' else 'TGV')
+                  )] %}
+            {% endif %}
+          {% endfor %}
+        {% endif %}
         {{ ns.result | join('\n') }}
