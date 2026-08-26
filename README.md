@@ -38,9 +38,9 @@ You can create scripts that Mistral AI can execute when their description match 
 3. Go to Settings then Devices & Services and click on Add Integration
 4. Search for Extended Mistral AI Conversation
 5. Enter your Mistral API key and submit
-6. Choose a model among the list available for your account (for a free one, i suggest mistral-small) and submit
-7. Adapt name and room to your choice and submit
-8. Click on the setting gear of the new service Extended Mistral AI Conversation
+6. Adapt name and area to your choice and submit
+7. Click on the setting gear of the new service Extended Mistral AI Conversation
+8. Choose a model among the list available for your account (for a free one, i suggest mistral-small)
 9. Review & adapt the other config params to your needs and submit
 10. Go to Settings then [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
 11. Click to an existing Assistant or create a new one.
