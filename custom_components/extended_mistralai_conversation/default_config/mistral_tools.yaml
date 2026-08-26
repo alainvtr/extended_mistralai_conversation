@@ -165,8 +165,6 @@ tools:
         - city_id
     function:
       type: rest
-      # Remplacez REMPLACER_PAR_VOTRE_CLE par votre clé Tomorrow.io réelle après avoir copié ce
-      # fichier vers /config — ne committez jamais de vraie clé API dans ce dépôt.
       resource_template: "https://api.tomorrow.io/v4/weather/forecast?location={{city_id}}&timesteps=1d&apikey=REMPLACER_PAR_VOTRE_CLE"
       value_template: '{{value_json}}'
 
