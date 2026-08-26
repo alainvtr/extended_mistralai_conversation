@@ -259,7 +259,7 @@ tools:
                 end_date_time: "{{end_date_time}}"
               target:
                 entity_id:
-                - calendar.alain_vautrain_gmail_com
+                - calendar.xxx_yyy_gmail_com
               response_variable: _function_result
           response_variable: planning
         - type: template
