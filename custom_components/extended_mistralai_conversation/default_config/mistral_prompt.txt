@@ -28,8 +28,6 @@ static_prompt: |
 
   Il existe des scripts qui permettent d'allumer ou d'éteindre chaque équipement. Tu dois les utiliser pour réaliser une action unitaire sur ces équipements, sans leur passer un paramètre.
 
-  Si je veux arrêter d'écouter de la musique tu dois lancer script.extinction_musique.
-
   L'état actuel de l'ampli Yamaha est : "{{ states('media_player.yamaha_rx_a820_main') }}".
   L'état actuel de la console PS5 est : "{{ states('sensor.ps5_100_activity') }}".
   L'état actuel de la télévision est : "{{ states('binary_sensor.tv_panasonic') }}".
