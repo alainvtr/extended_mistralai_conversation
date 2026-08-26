@@ -159,6 +159,7 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             async_get_chat_log(self.hass, session, user_input) as chat_log,
         ):
             intent_response = intent.IntentResponse(language=user_input.language)
+            continue_conversation = False
             try:
                 rendered_prompt = await self._render_prompt(user_input)
                 # Réécrit à chaque tour (le contenu dynamique — états, heure — change), sans toucher
@@ -170,6 +171,11 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
                     AssistantContent(agent_id=self.entity_id, content=speech)
                 )  # <-- sans ça, HA jette le chat_log car "aucun contenu assistant ajouté" (voir chat_log.py:131)
                 intent_response.async_set_speech(speech)
+                # Heuristique simple : une réponse qui se termine par "?" attend probablement une
+                # confirmation ("Dans le salon ?") — rouvre le micro plutôt que de couper la conversation.
+                # Imparfait (une question rhétorique sans "?" ne serait pas détectée, par exemple),
+                # mais couvre le cas le plus courant sans dépendre d'une signalisation explicite de Mistral.
+                continue_conversation = speech.rstrip().endswith("?")
             except Exception as e:
                 _LOGGER.error(f"Erreur avec Mistral API: {e}")
                 intent_response.async_set_error(
@@ -179,6 +185,7 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             return ConversationResult(
                 response=intent_response,
                 conversation_id=user_input.conversation_id,
+                continue_conversation=continue_conversation,
             )
 
     async def _async_conversation_run(self, chat_log, context: Context | None) -> str:
