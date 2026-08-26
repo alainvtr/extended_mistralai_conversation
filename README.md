@@ -14,12 +14,11 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 
 ## How it works
 Extended Mistrail AI Conversation uses Mistal AI API's feature like https://api.mistral.ai/v1/chat/completions.
-You can create scripts that Mistral AI can execute when their description match (see some examples in the file mistral_tools.yaml)
+You can create scripts that can be executed when Mistral AI find a match in their description (see some examples in the file mistral_tools.yaml)
 
 ## Manual installation
 1. Copy `extended_openai_conversation` folder into `<config directory>/custom_components`
-2. Copy the 2 files in `extended_openai_conversation/default_config` folder into `<config directory>`
-3. Restart Home Assistant
+2. Restart Home Assistant
    
 ## Installation via HACS
 1. Open HACS in Home Assistant
@@ -31,11 +30,10 @@ You can create scripts that Mistral AI can execute when their description match 
 ## Create a Mistral API key
 1. Sign up at mistral.ai : a free account is sufficient
 2. Go to console.mistral.ai/api-keys
-2. Click Create new key and copy it immediately
+3. Click Create new key and save it in your favorit secrets tool manager
 
 ## Configuration
-
-3. Go to Settings then Devices & Services and click on Add Integration
+3. In Home Assistant, go to Settings then Devices & Services and click on Add Integration
 4. Search for Extended Mistral AI Conversation
 5. Enter your Mistral API key and submit
 6. Adapt name and area to your choice and submit
@@ -45,8 +43,8 @@ You can create scripts that Mistral AI can execute when their description match 
 10. Go to Settings then [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
 11. Click to an existing Assistant or create a new one.
 12. Select "Extended Mistral AI Conversation" in "Conversation agent" selector
-13. Select "Mistral AI STT" in "STT" selector
-14. Select "Mistral AI TTS" in "TTS" selector and choose a voice model
+13. Select "Mistral AI STT" (or other name if you change it before) in "STT" selector
+14. Select "Mistral AI TTS" (or other name if you change it before) in "TTS" selector and choose a voice model
 15. Submit
 16. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
 17. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
