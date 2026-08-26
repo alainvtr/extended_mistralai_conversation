@@ -52,7 +52,7 @@ tools:
     function:
       type: script
       sequence:
-        - service: calendar.create_event
+        - action: calendar.create_event
           data:
             summary: "{{ title }}"
             start_date_time: "{{ start_time }}"
@@ -125,7 +125,7 @@ tools:
     function:
       type: script
       sequence:
-      - service: todo.add_item
+      - action: todo.add_item
         data:
           item: '{{item}}'
         target:
@@ -146,7 +146,7 @@ tools:
     function:
       type: script
       sequence:
-      - service: todo.get_items
+      - action: todo.get_items
         target:
           entity_id: '{{memory}}'
         data:
@@ -251,7 +251,7 @@ tools:
       sequence:
         - type: script
           sequence:
-            - service: calendar.get_events
+            - action: calendar.get_events
               data:
                 start_date_time: "{{start_date_time}}"
                 end_date_time: "{{end_date_time}}"
@@ -301,7 +301,7 @@ tools:
     function:
       type: script
       sequence:
-        - service: script.allumage_tout_pour_canalplus
+        - action: script.allumage_tout_pour_canalplus
           data: {}
 
   - name: allume_pour_netflix_amazon_streaming
@@ -310,7 +310,7 @@ tools:
     function:
       type: script
       sequence:
-        - service: script.allumage_tout_pour_netflix_amazon
+        - action: script.allumage_tout_pour_netflix_amazon
           data: {}
 
   - name: lancer_musique
