@@ -35,11 +35,9 @@ You can create scripts that Mistral AI can execute when their description match 
 
 ## Configuration
 
-1. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
-2. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
 3. Go to Settings then Devices & Services and click on Add Integration
 4. Search for Extended Mistral AI Conversation
-5. Enter your Mistral API key
+5. Enter your Mistral API key and submit
 6. Choose a model among the list available for your account (for a free one, i suggest mistral-small) and submit
 7. Adapt name and room to your choice and submit
 8. Click on the setting gear of the new service Extended Mistral AI Conversation
@@ -50,6 +48,9 @@ You can create scripts that Mistral AI can execute when their description match 
 13. Select "Mistral AI STT" in "STT" selector
 14. Select "Mistral AI TTS" in "TTS" selector and choose a voice model
 15. Submit
+16. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
+17. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
+18. You have to reload the intégration each time you modify mistral_prompt.txt or mistral_tools.yaml
     
 ## Final step
 When all is configured, you need to expose entities in  [Voice Assistants]("http://{your-home-assistant}/config/voice-assistants/expose").
