@@ -125,13 +125,20 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         return area.name if area else "Inconnu"
 
     def _convert_to_mistral_tool(self, tool_config: dict) -> dict:
-        """Convertit un tool YAML en format Mistral API."""
+        """Convertit un tool YAML en format Mistral API.
+
+        .get("parameters", ...) plutôt que ["parameters"] : plusieurs de vos
+        tools (allume_pour_canalplus, lancer_musique, alarme_stop, etc.) n'ont
+        légitimement aucun argument, donc pas de bloc "parameters" dans le
+        YAML — un objet JSON Schema vide est la représentation correcte d'une
+        fonction sans paramètres, pas une erreur à faire remonter.
+        """
         return {
             "type": "function",
             "function": {
                 "name": tool_config["name"],
                 "description": tool_config["description"],
-                "parameters": tool_config["parameters"]
+                "parameters": tool_config.get("parameters", {"type": "object", "properties": {}})
             }
         }
 
