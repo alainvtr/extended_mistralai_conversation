@@ -179,10 +179,10 @@ async def async_setup_entry(
         return
 
     await hass.async_add_executor_job(
-        _ensure_default_file, tools_config_path, DEFAULT_CONFIG_DIR / "mistral_tools.yaml"
+        _ensure_default_file, tools_config_path, DEFAULT_CONFIG_DIR / DEFAULT_TOOLS_CONFIG_PATH
     )
     await hass.async_add_executor_job(
-        _ensure_default_file, prompt_path, DEFAULT_CONFIG_DIR / "mistral_prompt.txt"
+        _ensure_default_file, prompt_path, DEFAULT_CONFIG_DIR / DEFAULT_PROMPT_PATH
     )
 
     prompt_template = await hass.async_add_executor_job(_load_prompt_template, prompt_path)
