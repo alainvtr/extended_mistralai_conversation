@@ -23,7 +23,6 @@ from homeassistant.components.homeassistant.exposed_entities import async_should
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import MATCH_ALL
 from homeassistant.core import Context, HomeAssistant
-from homeassistant.helpers import area_registry as ar
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent
 from homeassistant.helpers import llm
@@ -114,15 +113,6 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
                 "aliases": aliases
             })
         return exposed
-
-    def _get_areas(self) -> list[str]:
-        """Retourne la liste des area_id."""
-        return list(ar.async_get(self.hass).areas)
-
-    def _get_area_name(self, area_id: str) -> str:
-        """Retourne le nom d'une area à partir de son ID."""
-        area = ar.async_get(self.hass).async_get_area(area_id)
-        return area.name if area else "Inconnu"
 
     def _convert_to_mistral_tool(self, tool_config: dict) -> dict:
         """Convertit un tool YAML en format Mistral API.
@@ -320,8 +310,11 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         template_vars = {
             "now": dt_util.now,
             "exposed_entities": self._get_exposed_entities(),  # <-- résolu ici (liste), pas une référence de fonction — comme extended_openai_conversation, pas de () requis dans le prompt
-            "areas": self._get_areas,
-            "area_name": self._get_area_name,
+            # "areas" et "area_name" ne sont plus injectées ici : elles masquaient les
+            # fonctions natives Jinja de HA (areas()/area_name()) avec nos propres versions
+            # plus limitées — area_name() en particulier, qui ne savait résoudre qu'un
+            # area_id littéral, jamais un device_id ni un entity_id, contrairement à la
+            # native qui gère les trois avec résolution en cascade entité → appareil.
             "states": self.hass.states.get,
             "user_input": user_input,
         }
