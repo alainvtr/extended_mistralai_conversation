@@ -7,7 +7,7 @@ DOMAIN = "extended_mistralai_conversation"
 DEFAULT_NAME = "Extended Mistral AI Conversation"
 DEFAULT_MODEL = "mistral-medium-latest"
 DEFAULT_TOOLS_CONFIG_PATH = "mistral_tools.yaml"
-DEFAULT_PROMPT_PATH = "mistral_prompt.txt"
+DEFAULT_PROMPT_PATH = "mistral_prompt.yaml"
 DEFAULT_ALLOWED_DOMAINS = ["light", "cover", "script", "media_player"]
 DEFAULT_ALLOWED_SERVICES = {
     "light": ["turn_on", "turn_off", "toggle"],
