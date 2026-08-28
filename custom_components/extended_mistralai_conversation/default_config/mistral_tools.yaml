@@ -423,3 +423,25 @@ tools:
           {% endfor %}
         {% endif %}
         {{ ns.result | join('\n') }}
+
+  - name: get_history
+    description: "Consulte l'historique des états passés d'une ou plusieurs entités Home Assistant sur une période donnée."
+    parameters:
+      type: object
+      properties:
+        entity_ids:
+          type: array
+          items:
+            type: string
+          description: "Liste des entity_id à consulter (ex: ['sensor.temperature_salon'])"
+        start_time:
+          type: string
+          description: "Début de la période au format ISO 8601 (ex: 2026-08-25T00:00:00+02:00). Si omis, 24h avant end_time."
+        end_time:
+          type: string
+          description: "Fin de la période au format ISO 8601. Si omis, maintenant."
+      required:
+        - entity_ids
+    function:
+      type: native
+      name: get_history
