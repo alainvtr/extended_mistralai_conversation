@@ -17,7 +17,7 @@ Extended Mistrail AI Conversation uses Mistal AI API's feature like https://api.
 You can create scripts that can be executed in HA engine when Mistral AI find a match in their description (see some examples in the file mistral_tools.yaml)
 
 ## Manual installation
-1. Copy `extended_openai_conversation` folder into `<config directory>/custom_components`
+1. Copy `extended_mistralai_conversation` folder into `<config directory>/custom_components`
 2. Restart Home Assistant
    
 ## Installation via HACS
