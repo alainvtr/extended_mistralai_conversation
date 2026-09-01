@@ -81,33 +81,35 @@ When all is configured, you need to expose entities in  [Voice Assistants]("http
 Below is the minimalistic configuration of functions.
 
 ```yaml
-- spec:
-    name: execute_services
-    description: Use this function to execute service of devices in Home Assistant.
-    parameters:
-      type: object
-      properties:
-        list:
-          type: array
-          items:
-            type: object
-            properties:
-              domain:
-                type: string
-                description: The domain of the service
-              service:
-                type: string
-                description: The service to be called
-              service_data:
-                type: object
-                description: The service data object to indicate what to control.
-                properties:
-                  entity_id:
+
+- name: execute_services
+  description: Use this function to execute service of devices in Home Assistant.
+  parameters:
+    type: object
+    properties:
+      list:
+        type: array
+        items:
+          type: object
+          properties:
+            domain:
+              type: string
+              description: The domain of the service
+            service:
+              type: string
+              description: The service to be called
+            service_data:
+              type: object
+              description: The service data object to indicate what to control.
+              properties:
+                entity_id:
+                  type: array
+                  items:
                     type: string
-                    description: The entity_id retrieved from available devices. It must start with domain, followed by dot character.
-                required:
+                  description: List of target entity_id
+              required:
                 - entity_id
-            required:
+          required:
             - domain
             - service
             - service_data
