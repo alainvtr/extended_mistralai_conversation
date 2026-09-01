@@ -49,6 +49,14 @@ class NativeFunction(Function):
         domain = service_argument["domain"]
         service = service_argument["service"]
         service_data = service_argument.get("service_data", {})
+
+        # device_id/area_id ciblent des entités qui ne passent jamais par validate_entity_ids
+        # ci-dessous (seul entity_id y est soumis) — un area_id en particulier atteindrait
+        # TOUTES les entités de la zone, exposées ou non. Bloqué explicitement plutôt que
+        # transmis tel quel à hass.services.async_call, qui les honorerait sans contrôle.
+        if "device_id" in service_data or "area_id" in service_data:
+            return {"error": "device_id et area_id ne sont pas autorisés : cible uniquement via entity_id."}
+
         entity_id = service_data.get("entity_id")
 
         if isinstance(entity_id, str):
