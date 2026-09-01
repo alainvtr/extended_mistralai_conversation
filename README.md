@@ -14,7 +14,7 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 
 ## How it works
 Extended Mistrail AI Conversation uses Mistal AI API's feature like https://api.mistral.ai/v1/chat/completions.
-You can create scripts that can be executed when Mistral AI find a match in their description (see some examples in the file mistral_tools.yaml)
+You can create scripts that can be executed in HA engine when Mistral AI find a match in their description (see some examples in the file mistral_tools.yaml)
 
 ## Manual installation
 1. Copy `extended_openai_conversation` folder into `<config directory>/custom_components`
@@ -22,9 +22,9 @@ You can create scripts that can be executed when Mistral AI find a match in thei
    
 ## Installation via HACS
 1. Open HACS in Home Assistant
-2. Right top clic on the 3 dots and add the personnal repo https://github.com/alainvtr/extended_mistralai_conversation  as an Integration
+2. Right top click on the 3 dots and add the personnal repo https://github.com/alainvtr/extended_mistralai_conversation  as an Integration
 3. Add and go back to HACS main screen
-4. Find Extended Mistal AI Conversation in the available list, select it and then add it
+4. Find Extended Mistal AI Conversation in the available list, select it and add it
 5. Restart Home Assistant
 
 ## Create a Mistral API key
@@ -46,9 +46,9 @@ You can create scripts that can be executed when Mistral AI find a match in thei
 13. Select "Mistral AI STT" (or other name if you change it before) in "STT" selector
 14. Select "Mistral AI TTS" (or other name if you change it before) in "TTS" selector and choose a voice model
 15. Submit
-16. Edit the file `<config directory>/mistral_prompt.txt` and adapt to your needs
+16. Edit the file `<config directory>/mistral_prompt.yaml` and adapt to your needs
 17. Edit the file `<config directory>/mistral_tools.yaml` and adapt to your needs
-18. You have to reload the intégration each time you modify mistral_prompt.txt or mistral_tools.yaml
+18. You have to reload the intégration each time you modify mistral_prompt.yaml or mistral_tools.yaml
     
 ## Final step
 When all is configured, you need to expose entities in  [Voice Assistants]("http://{your-home-assistant}/config/voice-assistants/expose").
@@ -78,7 +78,7 @@ When all is configured, you need to expose entities in  [Voice Assistants]("http
 - `scrape`: Scraping information from website
 - `composite`: A sequence of functions to execute. 
 
-Below is the basic configuration of functions.
+Below is the minimalistic configuration of functions.
 
 ```yaml
 - spec:
