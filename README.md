@@ -113,3 +113,44 @@ Below is the minimalistic configuration of functions.
     type: native
     name: execute_service
 ```
+
+# Configuration parameters
+
+| Parameter | Default | Explanation |
+|---|---|---|
+| `model` | *(dynamic dropdown)* | Chat model used for conversation. Populated live from `GET /v1/models`, filtered to models with both `completion_chat` and `function_calling` capabilities (required for tool use) and not archived. |
+| `tools_config_path` | `mistral_tools.yaml` | Path to your tools definition file. Resolved relative to `<config directory>` if not absolute. Copied from a bundled template on first install if missing. |
+| `prompt_path` | `mistral_prompt.yaml` | Path to your prompt file (YAML with `static_prompt`/`dynamic_prompt` keys — see below). Same resolution/first-install behavior as `tools_config_path`. |
+| `allowed_domains` | `light, cover, script, media_player` | Domain whitelist for the `execute_services` tool. A domain not listed here is refused outright, regardless of what's exposed to Assist — this only applies to the generic `execute_services` tool, not to dedicated `type: script` tools. |
+| `allowed_services` | see YAML below | Service whitelist **per domain**, for the `execute_services` tool. Independent from entity exposure: a service call that targets a script by its own service name (e.g. `service: my_script`, no `entity_id`) bypasses Assist exposure entirely — this whitelist is the only guard on that path. Keep the `script` domain limited to `turn_on`/`turn_off`/`toggle` unless you have a specific reason to widen it. |
+| `backup_path` | `/share/extended_mistralai_conversation_options.json` | Where your options (this whole table, minus the API key) are backed up on every "Submit", and restored from on fresh install. Must be a path genuinely shared between the Home Assistant Core container and wherever you inspect it — `/backup` is **not** reliably shared on HAOS, `/share` is. |
+| `tts_voice` | `fr_marie_neutral` | Default Voxtral voice. Populated live from `GET /v1/audio/voices` (your account's available presets, including any cloned voices). |
+| `tts_mode` | `stream` | `stream`: sentence-pipelined, lower time-to-first-audio, higher complexity. `batch`: single request/response, simpler, higher latency on long replies. |
+| `tts_headroom` | `2.6` dB | Target headroom for audio normalization (`pydub.effects.normalize`) — lower value = louder output. Mistral's TTS output is notably quieter than Microsoft/Google/OpenAI by default, hence the boost. |
+| `tts_max_inflight_sentences` | `2` | Max concurrent Mistral TTS requests in `stream` mode (one per sentence). Higher = faster overall synthesis on long replies, at the cost of more simultaneous API calls. |
+| `tts_min_sentence_chars` | `12` | Minimum sentence length before triggering a TTS call in `stream` mode — avoids firing a request for short fragments. |
+| `tts_silence_ms` | `300` ms | Silence inserted between sentences in `stream` mode, for a natural pause at sentence boundaries. |
+| `stt_model` | *(dynamic dropdown)* | Transcription model. Populated live from `GET /v1/models`, filtered to `capabilities.audio_transcription` (excludes the separate realtime-only variant). |
+| `tts_model_id` | *(dynamic dropdown)* | Speech synthesis model. Populated live from `GET /v1/models`, filtered to `capabilities.audio_speech`. |
+
+`allowed_services` default value, in YAML:
+
+```yaml
+light:
+  - turn_on
+  - turn_off
+  - toggle
+cover:
+  - open_cover
+  - close_cover
+  - set_cover_position
+script:
+  - turn_on
+  - turn_off
+  - toggle
+media_player:
+  - volume_set
+  - media_play_pause
+  - turn_on
+  - turn_off
+```
