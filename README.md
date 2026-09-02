@@ -51,7 +51,7 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 16. You have to reload the integration each time you modify mistral_prompt.yaml or mistral_tools.yaml
     
 ## Final step
-When all is configured, you need to expose entities in  [Voice Assistants](http://{your-home-assistant}/config/voice-assistants/expose).
+When all is configured, you need to expose entities in  [Voice Assistants](https://my.home-assistant.io/redirect/voice-assistants/expose).
 
 ### Functions
 
