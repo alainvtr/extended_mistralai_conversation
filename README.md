@@ -38,7 +38,7 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 3. Enter your Mistral API key and submit (Note: this integration reads the API key from the config flow form directly — secrets.yaml is not supported here)
 4. Adapt name and area to your choice and submit or ignore and terminate
 5. Click on the setting gear of the new service Extended Mistral AI Conversation
-6. Choose a model among the list available for your account (for a free one, i suggest mistral-small)
+6. Choose a model among the list available for your account (for a free one, i suggest mistral-small-latest)
 7. Review & adapt the other config params to your needs and submit
 8. Go to Settings then [Voice Assistants](https://my.home-assistant.io/redirect/voice_assistants/).
 9. Click to an existing Assistant or create a new one.
