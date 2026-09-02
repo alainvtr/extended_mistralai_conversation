@@ -113,6 +113,7 @@ Below is the minimalistic configuration of functions.
     type: native
     name: execute_service
 ```
+You can find some examples in the provided mistral_tools.yaml.
 
 # Configuration parameters
 
