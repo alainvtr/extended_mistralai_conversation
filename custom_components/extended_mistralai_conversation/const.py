@@ -15,7 +15,7 @@ DEFAULT_ALLOWED_SERVICES = {
     "script": ["turn_on", "turn_off", "toggle"],
     "media_player": ["volume_set", "media_play_pause", "turn_on", "turn_off"],
 }
-DEFAULT_BACKUP_PATH = "/share/extended_mistralai_conversation_options.json"
+DEFAULT_BACKUP_PATH = "/share/ext_mistralai_conv_opt.json"
 
 # ---------------------------------------------------------------------------
 # API
