@@ -5,9 +5,9 @@ Constants for the Extended Mistral AI Conversation integration.
 """
 DOMAIN = "extended_mistralai_conversation"
 DEFAULT_NAME = "Extended Mistral AI Conversation"
-DEFAULT_MODEL = "mistral-medium-latest"
+DEFAULT_MODEL = "mistral-small-latest"
 DEFAULT_TOOLS_CONFIG_PATH = "mistral_tools.yaml"
-DEFAULT_PROMPT_PATH = "mistral_prompt.txt"
+DEFAULT_PROMPT_PATH = "mistral_prompt.yaml"
 DEFAULT_ALLOWED_DOMAINS = ["light", "cover", "script", "media_player"]
 DEFAULT_ALLOWED_SERVICES = {
     "light": ["turn_on", "turn_off", "toggle"],
@@ -80,4 +80,4 @@ TTS_SILENCE_BYTES_PER_MS = 48
 # Gain cible (headroom, en dB) appliqué par normalize() sur l'audio TTS —
 # plus la valeur est basse, plus le volume final est fort.
 CONF_TTS_HEADROOM = "tts_headroom"
-DEFAULT_TTS_HEADROOM = 5.2
+DEFAULT_TTS_HEADROOM = 2.6
