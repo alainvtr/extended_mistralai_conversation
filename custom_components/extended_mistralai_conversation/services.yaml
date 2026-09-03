@@ -12,7 +12,7 @@ export_options:
       name: Chemin du fichier
       description: Chemin complet du fichier JSON de destination.
       required: false
-      example: "/share/extended_mistralai_conversation_options.json"
+      example: "/share/ext_mistralai_conv_opt.json"
       selector:
         text:
 
@@ -26,6 +26,6 @@ import_options:
       name: Chemin du fichier
       description: Chemin complet du fichier JSON à importer.
       required: false
-      example: "/share/extended_mistralai_conversation_options.json"
+      example: "/share/ext_mistralai_conv_opt.json"
       selector:
         text:
