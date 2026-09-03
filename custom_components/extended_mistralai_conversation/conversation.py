@@ -179,10 +179,10 @@ async def async_setup_entry(
         return
 
     await hass.async_add_executor_job(
-        _ensure_default_file, tools_config_path, DEFAULT_CONFIG_DIR / "mistral_tools.yaml"
+        _ensure_default_file, tools_config_path, DEFAULT_CONFIG_DIR / DEFAULT_TOOLS_CONFIG_PATH
     )
     await hass.async_add_executor_job(
-        _ensure_default_file, prompt_path, DEFAULT_CONFIG_DIR / "mistral_prompt.txt"
+        _ensure_default_file, prompt_path, DEFAULT_CONFIG_DIR / DEFAULT_PROMPT_PATH
     )
 
     prompt_template = await hass.async_add_executor_job(_load_prompt_template, prompt_path)
@@ -194,8 +194,8 @@ async def async_setup_entry(
         # L'agent démarre quand même, avec zéro tool, plutôt que de bloquer toute la conversation.
         persistent_notification.async_create(
             hass,
-            f"L'agent Mistral a démarré **sans aucun outil** (impossible d'utiliser assist_timer, "
-            f"add_event, etc.) car son chargement a échoué :\n\n```\n{e}\n```\n\n"
+            f"L'agent Mistral a démarré **sans aucun outil** (impossible d'utiliser vos fonctions)"
+            f" car son chargement a échoué :\n\n```\n{e}\n```\n\n"
             f"Corrigez `{tools_config_path}` puis rechargez l'intégration.",
             title="Extended Mistral AI Conversation — erreur de configuration",
             notification_id=NOTIFICATION_ID,
