@@ -23,6 +23,7 @@ from homeassistant.components.homeassistant.exposed_entities import async_should
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import MATCH_ALL
 from homeassistant.core import Context, HomeAssistant
+from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers import intent
 from homeassistant.helpers import llm
@@ -220,6 +221,10 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             headers=headers,
             json=payload
         ) as response:
+            if response.status != 200:
+                body = await response.text()
+                _LOGGER.error("Mistral API HTTP %s : %s", response.status, body)
+                raise HomeAssistantError(f"Mistral API a renvoyé {response.status} : {body}")
             response_data = await response.json()
 
         message = response_data["choices"][0]["message"]  # <-- tool_calls est niché ici, pas sur "choices"[0] directement
