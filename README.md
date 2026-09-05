@@ -11,7 +11,12 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 - Ability to retrieve state history of entities
 - TTS
 - STT
-
+- the prompt for the LLM, stored in `<config directory>/mistral_prompt.yaml` (a sample is provided), is divided in 2 parts :
+   - static prompt under `static_prompt: |`
+   - dynamic prompt under `dynamic_prompt: |`
+- the tools called by the LLM are stored in `<config directory>/mistral_prompt.yaml`
+- all the configuration parameters are backuped in `<share directory>/ext_mistral_conv_opt.json` (each time you validate the configuration of the service)
+  
 ## How it works
 Extended Mistral AI Conversation uses Mistral AI API's feature like https://api.mistral.ai/v1/chat/completions.
 You can create scripts that can be executed in HA engine when Mistral AI finds a match in their description (see some examples in the file mistral_tools.yaml)
@@ -113,9 +118,15 @@ Below is the minimalistic configuration of functions.
     type: native
     name: execute_service
 ```
-You can find some examples in the provided mistral_tools.yaml.
 
-## Configuration parameters
+### Some explanations on the functions type
+You can find some examples in the provided mistral_tools.yaml.
+The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
+The `get_weather`, `search_brave` show how you can use the "rest" function type.
+The `get_attributes`, `get_tcl_maison_to_cisl`, `get_tcl_cisl_to_maison` show how you can use the "template" function type.
+The `get_event` show how you can use the "composite" function type.
+
+## Explanations for the configuration parameters
 
 | Parameter | Default | Explanation |
 |---|---|---|
