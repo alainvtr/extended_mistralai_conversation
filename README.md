@@ -14,7 +14,7 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 - the prompt for the LLM, stored in `<config directory>/mistral_prompt.yaml` (a sample is provided), is divided in 2 parts :
    - static prompt under `static_prompt: |`
    - dynamic prompt under `dynamic_prompt: |`
-- the tools called by the LLM are stored in `<config directory>/mistral_prompt.yaml`
+- the tools called by the LLM are stored in `<config directory>/mistral_tools.yaml`
 - all the configuration parameters are backuped in `<share directory>/ext_mistral_conv_opt.json` (each time you validate the configuration of the service)
   
 ## How it works
@@ -58,7 +58,7 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 ## Final step
 When all is configured, you need to expose entities in  [Voice Assistants](https://my.home-assistant.io/redirect/voice-assistants/expose).
 
-### Functions
+### Functions (in `<config directory>/mistral_tools.yaml`)
 
 #### Supported function types
 - `native`: built-in function provided by "extended_mistralai_conversation".
@@ -121,10 +121,19 @@ Below is the minimalistic configuration of functions.
 
 ### Some explanations on the functions type
 You can find some examples in the provided mistral_tools.yaml.
-The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
-The `get_weather`, `search_brave` show how you can use the "rest" function type.
-The `get_attributes`, `get_tcl_maison_to_cisl`, `get_tcl_cisl_to_maison` show how you can use the "template" function type.
-The `get_event` show how you can use the "composite" function type.
+   - The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
+   - The `get_weather`, `search_brave` show how you can use the "rest" function type.
+   - The `get_attributes`, `get_tcl_maison_to_cisl`, `get_tcl_cisl_to_maison` show how you can use the "template" function type.
+   - The `get_event` show how you can use the "composite" function type.
+   - The `lancer_musique`, `surveille_charge` show how you can pass to the LLM a specific execution result from the called script. Then, the TTS can say this result. The script must end with something like :
+```yaml     
+        - variables:
+            resultat:
+              message: "Voilà, c'est fait."
+        - stop: "réponse renvoyée au LLM"
+          response_variable: resultat
+```
+   - The `get_history` show how you can use the native "get_history" function type.
 
 ## Explanations for the configuration parameters
 
