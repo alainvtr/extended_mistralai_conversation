@@ -2,7 +2,7 @@
 This is a custom component for Home Assistant.
 
 Derived from [Extended OpenAI Conversation](https://github.com/jekalmin/extended_openai_conversation) and adapted to specific Mistal AI API.
-And i've added TTS and STT from [Mistral AI Conversation](https://github.com/SnarfNL/HA_MistralAI) to have a full package to use with Mistral AI.
+TTS and STT from [Mistral AI Conversation](https://github.com/SnarfNL/HA_MistralAI) are also provided to have a full package to use with Mistral AI.
 The TTS sound from Mistral is very low compared to other TTS like Microsoft, Google, Open AI : so, a sound boost (normalize()) is done on the TTS.
 
 ## Features
@@ -28,7 +28,7 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 5. Restart Home Assistant
 
 ## Create a Mistral API key
-1. Sign up at mistral.ai : a free account is sufficient
+1. Sign up at mistral.ai : a free account is generally sufficient (see notes at the end)
 2. Go to console.mistral.ai/api-keys
 3. Click Create new key and save it in your favorite secrets tool manager
 
@@ -155,3 +155,30 @@ media_player:
   - turn_on
   - turn_off
 ```
+
+## A note on free-tier rate limits
+
+If you're on Mistral's free Studio access and start seeing conversations silently fail (or STT/TTS working while the conversation agent doesn't), check your logs for something like:
+
+```
+Erreur avec Mistral API: Mistral API a renvoyé 429 : {"object":"error","message":"Rate limit exceeded","type":"rate_limited",...}
+```
+
+This is expected behavior on the free tier, not a bug in this integration. Free access to Mistral's API works on a **best-effort basis**: there is no reserved capacity for free users. When paying customers are using a given model, free-tier requests can be rejected — including your very first request of the day, with no prior usage on your account. You can confirm this is what's happening by checking the response headers of a failed request (`x-ratelimit-limit-req-minute: 0` is the tell-tale sign of a free account with no currently available capacity, as opposed to an account that has genuinely exhausted a real quota).
+CURL command to test : 
+
+curl -i https://api.mistral.ai/v1/chat/completions \
+  -H "Authorization: Bearer VOTRE_CLE_API" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "mistral-small-latest",
+    "messages": [{"role": "user", "content": "Bonjour"}]
+  }'
+
+A few things worth knowing:
+
+- **This is per model / per endpoint**, not account-wide. You may see `chat/completions` fail while `audio/speech` (TTS) works fine, or one model family (e.g. `magistral-*`) fail while another (`mistral-*`) succeeds — each can have its own capacity situation at any given moment.
+- **Free-tier credits are not consumed while your account is in this "Pending/free" status.** Credits only start being used once you're on a paid plan that guarantees capacity — a failed free-tier request costs you nothing.
+- This integration already includes automatic retry with exponential backoff on HTTP 429 (see `MAX_RETRIES_429` in `mistral_agent.py`) to smooth over short-lived spikes. It helps with occasional contention, but it's not a substitute for reserved capacity — during sustained heavy load from paying customers, retries can still exhaust their budget and fail.
+
+**If reliability matters to you** (e.g. you're using this for a real voice assistant, not just experimenting), switch to Mistral's **Pay-as-you-go** plan on [console.mistral.ai](https://console.mistral.ai). It gives you reserved capacity and priority access, and you're only billed for what you actually use — for a typical home voice assistant, the monthly cost is usually small.
