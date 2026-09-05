@@ -121,7 +121,7 @@ Below is the minimalistic configuration of functions.
 
 ### Some explanations on the functions type
 You can find some examples in the provided mistral_tools.yaml. \
-Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations. \
+Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations.\
 
    - The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
    - The `get_weather`, `search_brave` show how you can use the "rest" function type.
