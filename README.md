@@ -123,7 +123,7 @@ Below is the minimalistic configuration of functions.
 You can find some examples in the provided mistral_tools.yaml. \
 Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations.
 
-   - The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
+   - The `add_event`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
    - The `get_weather`, `search_brave` show how you can use the "rest" function type.
    - The `get_attributes`, `get_tcl_maison_to_cisl`, `get_tcl_cisl_to_maison` show how you can use the "template" function type.
    - The `get_event` show how you can use the "composite" function type.
