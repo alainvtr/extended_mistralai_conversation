@@ -115,7 +115,7 @@ Below is the minimalistic configuration of functions.
 ```
 You can find some examples in the provided mistral_tools.yaml.
 
-# Configuration parameters
+## Configuration parameters
 
 | Parameter | Default | Explanation |
 |---|---|---|
@@ -167,6 +167,7 @@ Erreur avec Mistral API: Mistral API a renvoyé 429 : {"object":"error","message
 This is expected behavior on the free tier, not a bug in this integration. Free access to Mistral's API works on a **best-effort basis**: there is no reserved capacity for free users. When paying customers are using a given model, free-tier requests can be rejected — including your very first request of the day, with no prior usage on your account. You can confirm this is what's happening by checking the response headers of a failed request (`x-ratelimit-limit-req-minute: 0` is the tell-tale sign of a free account with no currently available capacity, as opposed to an account that has genuinely exhausted a real quota).
 CURL command to test : 
 
+```
 curl -i https://api.mistral.ai/v1/chat/completions \
   -H "Authorization: Bearer VOTRE_CLE_API" \
   -H "Content-Type: application/json" \
@@ -174,6 +175,7 @@ curl -i https://api.mistral.ai/v1/chat/completions \
     "model": "mistral-small-latest",
     "messages": [{"role": "user", "content": "Bonjour"}]
   }'
+```
 
 A few things worth knowing:
 
