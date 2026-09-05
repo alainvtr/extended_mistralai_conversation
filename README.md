@@ -120,8 +120,8 @@ Below is the minimalistic configuration of functions.
 ```
 
 ### Some explanations on the functions type
-You can find some examples in the provided mistral_tools.yaml.\
-Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations.\
+You can find some examples in the provided mistral_tools.yaml. \
+Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations. \
 
    - The `add_evente`, `assist_timer`, `add_one_note`, `list_all_notes` show how you can use the "script" function type.
    - The `get_weather`, `search_brave` show how you can use the "rest" function type.
@@ -186,7 +186,8 @@ If you're on Mistral's free Studio access and start seeing conversations silentl
 Erreur avec Mistral API: Mistral API a renvoyé 429 : {"object":"error","message":"Rate limit exceeded","type":"rate_limited",...}
 ```
 
-This is expected behavior on the free tier, not a bug in this integration. Free access to Mistral's API works on a **best-effort basis**: there is no reserved capacity for free users. When paying customers are using a given model, free-tier requests can be rejected — including your very first request of the day, with no prior usage on your account. You can confirm this is what's happening by checking the response headers of a failed request (`x-ratelimit-limit-req-minute: 0` is the tell-tale sign of a free account with no currently available capacity, as opposed to an account that has genuinely exhausted a real quota).\
+This is expected behavior on the free tier, not a bug in this integration. Free access to Mistral's API works on a **best-effort basis**: there is no reserved capacity for free users. When paying customers are using a given model, free-tier requests can be rejected — including your very first request of the day, with no prior usage on your account. \
+You can confirm this is what's happening by checking the response headers of a failed request (`x-ratelimit-limit-req-minute: 0` is the tell-tale sign of a free account with no currently available capacity, as opposed to an account that has genuinely exhausted a real quota). \
 CURL command to test : 
 
 ```
