@@ -18,7 +18,7 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 - all the configuration parameters are backuped in `<share directory>/ext_mistral_conv_opt.json` (each time you validate the configuration of the service)
   
 ## How it works
-Extended Mistral AI Conversation uses Mistral AI API's feature like https://api.mistral.ai/v1/chat/completions.\
+Extended Mistral AI Conversation uses Mistral AI API's feature like https://api.mistral.ai/v1/chat/completions.  \
 You can create scripts that can be executed in HA engine when Mistral AI finds a match in their description (see some examples in the file mistral_tools.yaml)
 
 ## Manual installation
