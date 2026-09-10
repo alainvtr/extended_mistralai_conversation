@@ -29,6 +29,7 @@ from homeassistant.helpers import intent
 from homeassistant.helpers import llm
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.chat_session import async_get_chat_session
+from homeassistant.helpers.service import async_get_all_descriptions
 from homeassistant.helpers.template import Template
 from homeassistant.util import dt as dt_util
 
@@ -96,9 +97,22 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         """
         return MATCH_ALL
 
-    def _get_exposed_entities(self) -> list[dict]:
-        """Retourne la liste des entités exposées pour Assist."""
+    async def _get_exposed_entities(self) -> list[dict]:
+        """Retourne la liste des entités exposées pour Assist.
+
+        Pour les scripts, ajoute leur description de service (celle de
+        `description:` dans scripts.yaml, remontée via le cache de service
+        HA) — permet à Mistral d'appeler directement un script sans
+        argument via execute_services, sans avoir besoin d'un tool
+        "passerelle" dédié dans mistral_tools.yaml pour ce seul cas simple.
+        Les scripts avec des `fields:` (paramètres) restent hors de portée
+        de ce mécanisme : leurs fields ne sont jamais transmis à Mistral
+        par cette voie, un tool dédié reste nécessaire pour ceux-là.
+        """
         entity_registry = er.async_get(self.hass)
+        all_descriptions = await async_get_all_descriptions(self.hass)
+        script_descriptions = all_descriptions.get("script", {})
+
         exposed = []
         for state in self.hass.states.async_all():
             if not async_should_expose(self.hass, conversation.DOMAIN, state.entity_id):
@@ -107,11 +121,17 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             entity = entity_registry.async_get(state.entity_id)
             aliases = [str(a) for a in entity.aliases] if entity and entity.aliases else []
 
+            description = ""
+            if state.domain == "script":
+                object_id = state.entity_id.split(".", 1)[1]
+                description = script_descriptions.get(object_id, {}).get("description", "")
+
             exposed.append({
                 "entity_id": state.entity_id,
                 "name": state.name,
                 "state": state.state,
-                "aliases": aliases
+                "aliases": aliases,
+                "description": description,
             })
         return exposed
 
@@ -300,7 +320,7 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         try:
             executor = get_function(function_type)
             result = await executor.execute(
-                self.hass, function_config, arguments, context, self._get_exposed_entities()
+                self.hass, function_config, arguments, context, await self._get_exposed_entities()
             )
         except Exception as e:
             _LOGGER.error(f"Erreur lors de l'exécution de {function_name} ({function_type}): {e}")
@@ -314,7 +334,7 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         """Rend le prompt complet avec Jinja2."""
         template_vars = {
             "now": dt_util.now,
-            "exposed_entities": self._get_exposed_entities(),  # <-- résolu ici (liste), pas une référence de fonction — comme extended_openai_conversation, pas de () requis dans le prompt
+            "exposed_entities": await self._get_exposed_entities(),  # <-- résolu ici (liste), pas une référence de fonction — comme extended_openai_conversation, pas de () requis dans le prompt
             # "areas" et "area_name" ne sont plus injectées ici : elles masquaient les
             # fonctions natives Jinja de HA (areas()/area_name()) avec nos propres versions
             # plus limitées — area_name() en particulier, qui ne savait résoudre qu'un
@@ -326,3 +346,4 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
 
         template = Template(self.prompt_template, self.hass)
         return template.async_render(variables=template_vars)
+        
