@@ -14,7 +14,7 @@ The TTS sound from Mistral is very low compared to other TTS like Microsoft, Goo
 - the prompt for the LLM, stored in `<config directory>/mistral_prompt.yaml` (a sample is provided), is divided in 2 parts :
    - static prompt under `static_prompt: |`
    - dynamic prompt under `dynamic_prompt: |`
-- the tools called by the LLM are stored in `<config directory>/mistral_tools.yaml`
+- the tools/functions (scripts) called by the LLM are stored in `<config directory>/mistral_tools.yaml`
 - all the configuration parameters are backuped in `<share directory>/ext_mistral_conv_opt.json` (each time you validate the configuration of the service)
   
 ## How it works
@@ -58,9 +58,9 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 ## Final step
 When all is configured, you need to expose entities in  [Voice Assistants](https://my.home-assistant.io/redirect/voice-assistants/expose).
 
-### Functions (in `<config directory>/mistral_tools.yaml`)
+### Functions or tools (in `<config directory>/mistral_tools.yaml`)
 
-#### Supported function types
+#### Supported types
 - `native`: built-in function provided by "extended_mistralai_conversation".
   - Currently supported native functions and parameters are:
     - `execute_service`
@@ -73,13 +73,13 @@ When all is configured, you need to expose entities in  [Voice Assistants](https
       - `entity_ids`(list): a list of entity ids to filter
       - `start_time`(string): defaults to 1 day before the time of the request. It determines the beginning of the period
       - `end_time`(string): the end of the period in URL encoded format (defaults to 1 day)
-- `script`: A list of services that will be called
+- `script`: It's like a script in HA (action, choose, if/then/else, repeat, ...) - The LLM wait for the end of the script to say something
 - `template`: The value to be returned from function.
 - `rest`: Getting data from REST API endpoint.
 - `scrape`: Scraping information from website
-- `composite`: A sequence of functions to execute. 
+- `composite`: A sequence of functions (template, rest, scrape, script )to execute. 
 
-Below is the minimalistic configuration of functions.
+Below is the minimalistic configuration.
 
 ```yaml
 
@@ -119,7 +119,21 @@ Below is the minimalistic configuration of functions.
     name: execute_service
 ```
 
-### Some explanations on the functions type
+#### Some explanations on the 'tools' type
+
+##### Where should a script live: `scripts.yaml` or `mistral_tools.yaml`?
+
+The LLM can trigger a Home Assistant script in two different ways:
+
+- **As an exposed entity**, via the generic `execute_services` tool (already defined in `mistral_tools.yaml` by default). If the script is defined in `scripts.yaml` and exposed to Assist, its `description:` field is automatically picked up and included in the "Available Devices" list of the dynamic prompt. If that description is clear enough, the LLM can decide on its own to call it (`domain: script`, `service: turn_on`, `entity_id: script.xxx`) — no dedicated tool entry needed for that script specifically.
+- **As a dedicated tool** in `mistral_tools.yaml`, with its own `sequence:`. In this case the script logic lives entirely inside the tool definition — it is never registered as a `script.xxx` entity and never appears among your Home Assistant scripts.
+
+##### How to choose
+
+1. **If the script needs to be called from elsewhere** (another script, an automation, a dashboard button) — it must be a real script in `scripts.yaml`. A `sequence:` embedded directly in `mistral_tools.yaml` is not a registered entity and cannot be referenced anywhere else.
+2. **If you rely on Home Assistant's native execution traces** (Settings > Automations & Scenes > Scripts > *your script* > Traces) — only a real script in `scripts.yaml` gets this. A tool's inline `sequence:` runs through a temporary script object created at call time; it is never registered, so it never shows up in the Traces UI. (Not to be confused with the `get_history` tool, which reads *entity state* history from the recorder — a different Home Assistant feature entirely.)
+3. **If the script takes input parameters** (`fields:` in `scripts.yaml`): they are **never** visible to the LLM through the "exposed entity" path, no matter how good the script's `description` is — Home Assistant's service-description cache only exposes the script's own text description, not its individual `fields:`. To let the LLM actually provide arguments, you need a dedicated tool in `mistral_tools.yaml` with a proper `parameters:` schema. From there, the tool's `sequence:` can either hold the full script logic directly, or simply call your existing `script.xxx` — pick based on points 1 and 2 above.
+
 You can find some examples in the provided mistral_tools.yaml. \
 Don't forget that the 'description' field is very important for the LLM: it provides guidance on what to do and how to behave in specific situations.
 
