@@ -58,9 +58,9 @@ You can create scripts that can be executed in HA engine when Mistral AI finds a
 ## Final step
 When all is configured, you need to expose entities in  [Voice Assistants](https://my.home-assistant.io/redirect/voice-assistants/expose).
 
-### Functions or tools (in `<config directory>/mistral_tools.yaml`)
+## Functions or tools (in `<config directory>/mistral_tools.yaml`)
 
-#### Supported types
+### Supported types
 - `native`: built-in function provided by "extended_mistralai_conversation".
   - Currently supported native functions and parameters are:
     - `execute_service`
@@ -119,16 +119,16 @@ Below is the minimalistic configuration.
     name: execute_service
 ```
 
-#### Some explanations on the 'tools' type
+### Some explanations on the 'tools' type
 
-##### Where should a script live: `scripts.yaml` or `mistral_tools.yaml`?
+#### Where should a script live: `scripts.yaml` or `mistral_tools.yaml`?
 
 The LLM can trigger a Home Assistant script in two different ways:
 
 - **As an exposed entity**, via the generic `execute_services` tool (already defined in `mistral_tools.yaml` by default). If the script is defined in `scripts.yaml` and exposed to Assist, its `description:` field is automatically picked up and included in the "Available Devices" list of the dynamic prompt. If that description is clear enough, the LLM can decide on its own to call it (`domain: script`, `service: turn_on`, `entity_id: script.xxx`) — no dedicated tool entry needed for that script specifically.
 - **As a dedicated tool** in `mistral_tools.yaml`, with its own `sequence:`. In this case the script logic lives entirely inside the tool definition — it is never registered as a `script.xxx` entity and never appears among your Home Assistant scripts.
 
-##### How to choose
+#### How to choose
 
 1. **If the script needs to be called from elsewhere** (another script, an automation, a dashboard button) — it must be a real script in `scripts.yaml`. A `sequence:` embedded directly in `mistral_tools.yaml` is not a registered entity and cannot be referenced anywhere else.
 2. **If you rely on Home Assistant's native execution traces** (Settings > Automations & Scenes > Scripts > *your script* > Traces) — only a real script in `scripts.yaml` gets this. A tool's inline `sequence:` runs through a temporary script object created at call time; it is never registered, so it never shows up in the Traces UI. (Not to be confused with the `get_history` tool, which reads *entity state* history from the recorder — a different Home Assistant feature entirely.)
