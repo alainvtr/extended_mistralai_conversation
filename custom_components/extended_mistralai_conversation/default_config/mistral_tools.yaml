@@ -295,24 +295,6 @@ tools:
         No results found
         {% endif %}
 
-  - name: allume_pour_canalplus
-    description: "Utilise quand il y a une demande pour regarder canal plus"
-    parameters:
-    function:
-      type: script
-      sequence:
-        - action: script.allumage_tout_pour_canalplus
-          data: {}
-
-  - name: allume_pour_netflix_amazon_streaming
-    description: "utilise quand il y a une demande pour regarder netflix ou pour regarder amazon ou pour regarder du streaming"
-    parameters:
-    function:
-      type: script
-      sequence:
-        - action: script.allumage_tout_pour_netflix_amazon
-          data: {}
-
   - name: lancer_musique
     description: "utilise quand il y a une demande pour écouter de la musique"
     parameters:
