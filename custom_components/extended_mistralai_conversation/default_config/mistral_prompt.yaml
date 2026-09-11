@@ -79,21 +79,18 @@ dynamic_prompt: |
   L'état actuel de la console PS5 est : {{ states('sensor.ps5_100_activity') }}
   L'état actuel de la télévision est : {{ states('binary_sensor.tv_panasonic') }}
 
-  Available Devices:
-  ````csv
-  entity_id,name,state,aliases
-  {% for entity in exposed_entities -%}
-  {{ entity.entity_id }},{{ entity.name }},{{ entity.state }},{{entity.aliases | join('/')}}
-  {% endfor -%}
-  ````
+  Available Devices (JSON — un objet par entité : entity_id, name, state, aliases, description) :
+  ```json
+  {{ exposed_entities | tojson }}
+  ```
 
   Areas:
-  ````csv
+  ```csv
   area_id,name
   {% for area_id in areas() -%}
   {{area_id}},{{area_name(area_id)}}
   {% endfor -%}
-  ````
+  ```
   
   ID du satellite courant : {{ user_input.satellite_id }}
   Pièce du satellite courant : {{ area_name(user_input.satellite_id) or "Inconnu" }}
