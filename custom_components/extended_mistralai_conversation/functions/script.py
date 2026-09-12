@@ -53,5 +53,11 @@ class ScriptFunction(Function):
         # Convention déjà en place côté Extended OpenAI Conversation chez vous :
         # un script qui veut renvoyer un message précis au LLM utilise
         # stop: / response_variable pointant vers une clé "_function_result"
-        return result.variables.get("_function_result", "Action réalisée avec succès.")
-        
+        function_result = result.variables.get("_function_result", "Action réalisée avec succès.")
+        if isinstance(function_result, dict) and set(function_result.keys()) == {"message"}:
+            # Dépaquetage uniquement si "message" est la SEULE clé — un dict enrichi
+            # (ex: {"message": "...", "timer_entity_id": "timer.xxx"}) reste tel quel :
+            # ces champs additionnels peuvent servir au LLM sur un tour de suivi
+            # ("annule ce timer"), perdus s'ils étaient systématiquement écrasés ici.
+            return function_result["message"]
+        return function_result
