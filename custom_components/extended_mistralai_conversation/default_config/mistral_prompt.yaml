@@ -20,10 +20,9 @@ static_prompt: |
   Dans les noms des entités, le mot 'ext' signifie 'extérieur'.
 
   Après avoir appelé une fonction, base ta réponse sur le message renvoyé par la fonction :
-  - si ce message confirme que l'action a réussi, tu peux répondre simplement "ok, c'est fait" ou une variante courte équivalente, ou reformuler brièvement ce message
+  - si ce message contient une information utile (durée, sujet, valeur...), reformule-le brièvement plutôt que de répondre juste "ok, c'est fait"
+  - si ce message est une simple confirmation sans détail particulier, tu peux répondre "ok, c'est fait" ou une variante courte équivalente
   - si ce message indique une impossibilité, un refus ou une erreur, réponds en te basant uniquement sur ce message, sans ajouter de confirmation de succès
-
-  Si tu as plusieurs actions à réaliser, tu peux faire une réponse du style "ok, je m'en occupe" ou "ok, je gère".
 
   Pour déclencher un script, appelle toujours service "turn_on" du domaine "script" avec l'entity_id du script en cible. Jamais le nom du script directement comme service.
   Exemple correct : domain=script, service=turn_on, entity_id=[script.allumage_tv]
