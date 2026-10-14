@@ -1,6 +1,7 @@
 """
 From https://github.com/jekalmin/extended_openai_conversation
 Custom Conversation Agent for Mistral AI (HA 2026.7.2).
+14/10/2026 : correction lié à HA 2026.10 https://developers.home-assistant.io/blog/2026/09/26/llm-tool-result/
 """
 from __future__ import annotations
 
@@ -286,16 +287,36 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
                 "content": result_text,
             })
             chat_log.async_add_assistant_content_without_tools(
-                ToolResultContent(
-                    agent_id=self.entity_id,
-                    tool_call_id=tool_input.id,
-                    tool_name=tool_input.tool_name,
-                    tool_result={"result": result_text},
-                )
+                self._tool_result_content(tool_input, result_text)
             )
 
         # On relance Mistral avec les résultats, pour qu'il formule la réponse finale
         return await self._query_mistral(messages, mistral_tools, n_calls + 1, context, chat_log)
+
+    def _tool_result_content(self, tool_input: llm.ToolInput, result_text: str) -> ToolResultContent:
+        """Construit le ToolResultContent adapté à la version de HA.
+
+        HA Core >= 2026.10 : le champ s'appelle `result` et contient un llm.ToolResult ;
+        `tool_result` n'existe plus à la construction (seule sa LECTURE garde un alias
+        déprécié jusqu'en 2027.11), l'utiliser lève un TypeError.
+        HA Core < 2026.10 : seul `tool_result` (un dict) existe.
+        Le test sur llm.ToolResult évite de casser les installations pas encore migrées.
+        Quand la version minimale de HA sera >= 2026.10, ne garder que la première branche.
+        """
+        data = {"result": result_text}
+        if hasattr(llm, "ToolResult"):
+            return ToolResultContent(
+                agent_id=self.entity_id,
+                tool_call_id=tool_input.id,
+                tool_name=tool_input.tool_name,
+                result=llm.ToolResult(data=data),
+            )
+        return ToolResultContent(
+            agent_id=self.entity_id,
+            tool_call_id=tool_input.id,
+            tool_name=tool_input.tool_name,
+            tool_result=data,
+        )
 
     async def _execute_function(self, function_name: str, arguments: dict, context: Context | None) -> str:
         """Trouve la config du tool et délègue à l'exécuteur du type correspondant (native/script/template/rest/scrape/composite)."""
