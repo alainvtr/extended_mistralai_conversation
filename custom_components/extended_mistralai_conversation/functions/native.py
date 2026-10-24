@@ -1,3 +1,4 @@
+# 24/10/2026 16:45 get_history : horodatages convertis en heure locale (le LLM lisait l'UTC comme de l'heure locale)
 """Fonctions natives Home Assistant : execute_service, get_history.
 
 Sous-ensemble volontairement limité de ce que propose extended_openai_conversation
@@ -128,5 +129,23 @@ class NativeFunction(Function):
             raise HomeAssistantError(error_message)
         return dt_util.as_utc(parsed)
 
+    # Le recorder renvoie des horodatages UTC (+00:00). Le LLM ne fait pas la conversion
+    # et les lit comme de l'heure locale (ex. 12:02 UTC pris pour "midi"), d'où des réponses
+    # décalées de l'offset du fuseau. On les remet donc dans le fuseau configuré dans HA,
+    # cohérent avec start_time/end_time que le LLM envoie lui-même en heure locale.
+    _TIMESTAMP_KEYS = ("last_changed", "last_updated")
+
     def _as_dict(self, state: State | dict[str, Any]) -> dict[str, Any]:
-        return state.as_dict() if isinstance(state, State) else state
+        item = dict(state.as_dict() if isinstance(state, State) else state)
+        for key in self._TIMESTAMP_KEYS:
+            if key in item:
+                item[key] = self._as_local_iso(item[key])
+        return item
+
+    @staticmethod
+    def _as_local_iso(value: Any) -> Any:
+        """ISO 8601 en heure locale ; valeur inchangée si elle n'est pas interprétable."""
+        parsed = dt_util.parse_datetime(value) if isinstance(value, str) else value
+        if not hasattr(parsed, "tzinfo"):
+            return value
+        return dt_util.as_local(parsed).isoformat(timespec="seconds")
