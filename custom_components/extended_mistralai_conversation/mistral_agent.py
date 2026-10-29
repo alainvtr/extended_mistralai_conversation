@@ -1,4 +1,5 @@
 """
+29/10/2026 16:34 : historique multi-tours reconstruit avec les tool_calls et les resultats d'outils (avant : seuls les textes etaient renvoyes a Mistral, qui voyait des "Ok c'est fait" sans aucun appel de fonction et apprenait a confirmer sans agir)
 From https://github.com/jekalmin/extended_openai_conversation
 Custom Conversation Agent for Mistral AI (HA 2026.7.2).
 14/10/2026 : correction lié à HA 2026.10 https://developers.home-assistant.io/blog/2026/09/26/llm-tool-result/
@@ -209,13 +210,74 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         # utilisateur courant (ajouté automatiquement par async_get_chat_log avant qu'on arrive ici).
         # getattr(..., "content", None) exclut proprement les ToolResultContent (pas d'attribut
         # "content", ils ont "tool_result") sans avoir à importer UserContent pour un isinstance().
-        messages = [
-            {"role": content.role, "content": content.content}
-            for content in chat_log.content
-            if getattr(content, "content", None)
-        ]
+        # 29/10/2026 : on ne se contente plus des seuls textes. Auparavant, les messages assistant
+        # porteurs de tool_calls (content vide) et les ToolResultContent etaient ecartes : Mistral
+        # voyait alors, pour les tours precedents, "demande d'action" -> "Ok c'est fait" sans aucun
+        # appel de fonction, et pouvait reproduire ce schema (confirmer sans appeler l'outil).
+        messages = self._build_mistral_history(chat_log)
 
         return await self._query_mistral(messages, mistral_tools, n_calls=0, context=context, chat_log=chat_log)
+
+    @staticmethod
+    def _build_mistral_history(chat_log) -> list[dict]:
+        """Convertit chat_log.content en messages Mistral, tool_calls et resultats d'outils compris.
+
+        Seuls les tool_calls ayant un resultat (et inversement) sont conserves : un tour
+        interrompu par une exception laisserait sinon un appel orphelin, que l'API Mistral
+        rejette (chaque message "tool" doit repondre a un tool_call du message assistant precedent).
+        """
+        answered_ids = {
+            content.tool_call_id
+            for content in chat_log.content
+            if isinstance(content, ToolResultContent)
+        }
+        called_ids = {
+            tool_input.id
+            for content in chat_log.content
+            if isinstance(content, AssistantContent)
+            for tool_input in (content.tool_calls or [])
+        }
+
+        messages: list[dict] = []
+        for content in chat_log.content:
+            if isinstance(content, ToolResultContent):
+                if content.tool_call_id not in called_ids:
+                    continue
+                # HA >= 2026.10 : `result` (llm.ToolResult) ; avant : `tool_result` (dict)
+                result = getattr(content, "result", None)
+                data = getattr(result, "data", result) if result is not None else getattr(content, "tool_result", None)
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": content.tool_call_id,
+                    "name": content.tool_name,
+                    "content": data.get("result", "") if isinstance(data, dict) and "result" in data
+                    else json.dumps(data, default=str, ensure_ascii=False),
+                })
+                continue
+
+            if isinstance(content, AssistantContent) and content.tool_calls:
+                tool_calls = [
+                    {
+                        "id": tool_input.id,
+                        "type": "function",
+                        "function": {
+                            "name": tool_input.tool_name,
+                            "arguments": json.dumps(tool_input.tool_args, ensure_ascii=False),
+                        },
+                    }
+                    for tool_input in content.tool_calls
+                    if tool_input.id in answered_ids
+                ]
+                if tool_calls:
+                    messages.append({"role": "assistant", "content": content.content or "", "tool_calls": tool_calls})
+                elif content.content:
+                    messages.append({"role": "assistant", "content": content.content})
+                continue
+
+            if getattr(content, "content", None):
+                messages.append({"role": content.role, "content": content.content})
+
+        return messages
 
     async def _query_mistral(
         self,
@@ -367,4 +429,3 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
 
         template = Template(self.prompt_template, self.hass)
         return template.async_render(variables=template_vars)
-        
