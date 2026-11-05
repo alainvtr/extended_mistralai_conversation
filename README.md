@@ -117,6 +117,43 @@ Below is the minimalistic configuration.
   function:
     type: native
     name: execute_service
+
+  - name: get_attributes
+    description: "Get attributes of any home assistant entity"
+    parameters:
+      type: object
+      properties:
+        entity_id:
+          type: string
+          description: "entity_id"
+      required:
+      - entity_id
+    function:
+      type: template
+      value_template: "{{states[entity_id]}}"
+
+  - name: get_history
+    description: "Consulte l'historique des états passés d'une ou plusieurs entités Home Assistant sur une période donnée."
+    parameters:
+      type: object
+      properties:
+        entity_ids:
+          type: array
+          items:
+            type: string
+          description: "Liste des entity_id à consulter (ex: ['sensor.temperature_salon'])"
+        start_time:
+          type: string
+          description: "Début de la période au format ISO 8601 (ex: 2026-08-25T00:00:00+02:00). Si omis, 24h avant end_time."
+        end_time:
+          type: string
+          description: "Fin de la période au format ISO 8601. Si omis, maintenant."
+      required:
+        - entity_ids
+    function:
+      type: native
+      name: get_history
+
 ```
 
 ### Some explanations on the 'tools' type
