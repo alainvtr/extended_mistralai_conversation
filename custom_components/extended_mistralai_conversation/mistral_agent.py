@@ -1,4 +1,5 @@
 """
+05/11/2026 19:27 : parameters vide dans le YAML (None) envoye tel quel a Mistral -> HTTP 422 (issue #1) ; .get() ne remplace que les cles absentes, remplace par "or"
 29/10/2026 16:34 : historique multi-tours reconstruit avec les tool_calls et les resultats d'outils (avant : seuls les textes etaient renvoyes a Mistral, qui voyait des "Ok c'est fait" sans aucun appel de fonction et apprenait a confirmer sans agir)
 From https://github.com/jekalmin/extended_openai_conversation
 Custom Conversation Agent for Mistral AI (HA 2026.7.2).
@@ -145,13 +146,15 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
         légitimement aucun argument, donc pas de bloc "parameters" dans le
         YAML — un objet JSON Schema vide est la représentation correcte d'une
         fonction sans paramètres, pas une erreur à faire remonter.
+        Le "or" couvre aussi "parameters:" present mais vide (None en YAML),
+        que .get() laisserait passer tel quel (cf. issue #1).
         """
         return {
             "type": "function",
             "function": {
                 "name": tool_config["name"],
                 "description": tool_config["description"],
-                "parameters": tool_config.get("parameters", {"type": "object", "properties": {}})
+                "parameters": tool_config.get("parameters") or {"type": "object", "properties": {}}
             }
         }
 
