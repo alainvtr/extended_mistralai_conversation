@@ -297,7 +297,6 @@ tools:
 
   - name: lancer_musique
     description: "utilise quand il y a une demande pour écouter de la musique"
-    parameters:
     function:
       type: script
       sequence:
@@ -306,7 +305,6 @@ tools:
 
   - name: surveille_charge
     description: "TOUJOURS utiliser pour répondre à une demande de surveillance de mise en charge d'un téléphone mobile ou d'une tablette, même si le niveau de batterie est connu. Ne pas répondre directement, utiliser cette fonction"
-    parameters:
     function:
       type: script
       sequence:
@@ -315,7 +313,6 @@ tools:
 
   - name: alarme_sonore
     description: "mise en route de l'alarme en mode sonore"
-    parameters:
     function:
       type: script
       sequence:
@@ -324,7 +321,6 @@ tools:
 
   - name: alarme_silencieux
     description: "mise en route de l'alarme en mode silencieux"
-    parameters:
     function:
       type: script
       sequence:
@@ -333,7 +329,6 @@ tools:
 
   - name: alarme_stop
     description: "arrêt de l'alarme"
-    parameters:
     function:
       type: script
       sequence:
@@ -342,7 +337,6 @@ tools:
 
   - name: trains_de_macon_a_lyon
     description: "donne la liste des trois prochains trains qui partent de Mâcon et arrivent à Lyon Part Dieu. Indique aussi le type de train dans ta réponse."
-    parameters:
     function:
       type: template
       value_template: >-
@@ -375,7 +369,6 @@ tools:
 
   - name: trains_de_lyon_a_macon
     description: "donne la liste des trois prochains trains qui partent de Lyon Part Dieu et arrivent à Mâcon. Donne aussi le type de train dans ta réponse."
-    parameters:
     function:
       type: template
       value_template: >-
