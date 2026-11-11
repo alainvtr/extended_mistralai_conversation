@@ -1,4 +1,5 @@
 """
+06/11/2026 19:15 : option de tool "return_direct: true" -> le result du tool est renvoye tel quel comme reponse (TTS), sans second appel a Mistral qui le reformulait (ex: surveille_charge perdait le "70 %")
 05/11/2026 19:27 : parameters vide dans le YAML (None) envoye tel quel a Mistral -> HTTP 422 (issue #1) ; .get() ne remplace que les cles absentes, remplace par "or"
 29/10/2026 16:34 : historique multi-tours reconstruit avec les tool_calls et les resultats d'outils (avant : seuls les textes etaient renvoyes a Mistral, qui voyait des "Ok c'est fait" sans aucun appel de fonction et apprenait a confirmer sans agir)
 From https://github.com/jekalmin/extended_openai_conversation
@@ -343,8 +344,10 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             AssistantContent(agent_id=self.entity_id, content=message.get("content"), tool_calls=tool_inputs)
         )
 
+        result_texts: list[str] = []
         for tool_call, tool_input in zip(tool_calls, tool_inputs):
             result_text = await self._execute_function(tool_input.tool_name, tool_input.tool_args, context)
+            result_texts.append(result_text)
             messages.append({
                 "role": "tool",
                 "tool_call_id": tool_call["id"],
@@ -355,8 +358,21 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
                 self._tool_result_content(tool_input, result_text)
             )
 
+        # 06/11/2026 : si TOUS les tools appelés dans ce tour sont "return_direct", leur result
+        # est la réponse finale, mot pour mot. Sans ça, Mistral reformule librement le result
+        # (il le traite comme une donnée, pas comme un texte à lire) et peut en perdre une partie.
+        # Si un seul des tools du lot n'est pas return_direct, on relance Mistral normalement :
+        # il a besoin de voir ce result-là pour formuler sa réponse.
+        if all(self._is_return_direct(tool_input.tool_name) for tool_input in tool_inputs):
+            return " ".join(text for text in result_texts if text)
+
         # On relance Mistral avec les résultats, pour qu'il formule la réponse finale
         return await self._query_mistral(messages, mistral_tools, n_calls + 1, context, chat_log)
+
+    def _is_return_direct(self, function_name: str) -> bool:
+        """Vrai si le tool est déclaré avec `return_direct: true` dans mistral_tools.yaml."""
+        tool_config = next((t for t in self.tools if t["name"] == function_name), None)
+        return bool(tool_config and tool_config.get("return_direct", False))
 
     def _tool_result_content(self, tool_input: llm.ToolInput, result_text: str) -> ToolResultContent:
         """Construit le ToolResultContent adapté à la version de HA.
