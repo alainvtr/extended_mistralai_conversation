@@ -1,4 +1,5 @@
 """
+12/11/2026 00:35 : execute_services normalise l'appel direct d'un script (service=<nom du script>) en script.turn_on avant le controle de liste blanche (refus "service non autorise" quand la consigne du prompt n'etait plus la)
 06/11/2026 19:15 : option de tool "return_direct: true" -> le result du tool est renvoye tel quel comme reponse (TTS), sans second appel a Mistral qui le reformulait (ex: surveille_charge perdait le "70 %")
 05/11/2026 19:27 : parameters vide dans le YAML (None) envoye tel quel a Mistral -> HTTP 422 (issue #1) ; .get() ne remplace que les cles absentes, remplace par "or"
 29/10/2026 16:34 : historique multi-tours reconstruit avec les tool_calls et les resultats d'outils (avant : seuls les textes etaient renvoyes a Mistral, qui voyait des "Ok c'est fait" sans aucun appel de fonction et apprenait a confirmer sans agir)
@@ -414,6 +415,22 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
             for service_call in arguments.get("list", []):
                 domain = service_call["domain"]
                 service = service_call["service"]
+                # Appel direct d'un script par son nom (script.<nom>) : syntaxe valide dans HA,
+                # equivalente a script.turn_on sur l'entite script.<nom>. On normalise ici pour
+                # que la liste blanche s'applique sur turn_on, sans dependre d'une consigne du prompt.
+                # Les eventuels champs du script passent sous "variables", comme l'attend turn_on.
+                if (
+                    domain == "script"
+                    and service not in self.allowed_services.get(domain, [])
+                    and self.hass.states.get(f"script.{service}") is not None
+                ):
+                    old_data = service_call.get("service_data") or {}
+                    new_data = {"entity_id": f"script.{service}"}
+                    variables = {k: v for k, v in old_data.items() if k != "entity_id"}
+                    if variables:
+                        new_data["variables"] = variables
+                    service_call["service_data"] = new_data
+                    service_call["service"] = service = "turn_on"
                 if domain not in self.allowed_domains:
                     return f"Le domaine {domain} n'est pas autorisé."
                 if service not in self.allowed_services.get(domain, []):
@@ -448,3 +465,4 @@ class MistralConversationAgent(ConversationEntity, conversation.AbstractConversa
 
         template = Template(self.prompt_template, self.hass)
         return template.async_render(variables=template_vars)
+        
